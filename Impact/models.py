@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 
 # Create your models here.
 class University(models.Model):
@@ -12,3 +12,7 @@ class University(models.Model):
         if not self.pk:  # Only hash the password if it's a new object
             self.password = make_password(self.password)
         super().save(*args, **kwargs)
+
+    def check_password(self, password):
+        return check_password(password, self.password)
+

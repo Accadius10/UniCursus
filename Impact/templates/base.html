@@ -74,8 +74,8 @@
     <footer id="footer" class="footer">
 
         <div class="container">
-            <div class="row gy-4">
-                <div class="col-lg-5 col-md-12 footer-info">
+            <div class="row gy-4 justify-content-between">
+                <div class="col-lg-4 col-md-12 footer-info pr-5">
                     <a href="{% url 'accueil' %}" class="logo d-flex align-items-center">
                         <span>UniCursus</span>
                     </a>
@@ -88,7 +88,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-2 col-6 footer-links">
+                <div class="col-lg-4 footer-links">
                     <h4>Useful Links</h4>
                     <ul>
                         {% block menuFooter %}
@@ -97,11 +97,7 @@
                     </ul>
                 </div>
 
-                {% block service %}
-                <li><a href="#">Home</a></li>
-                {% endblock %}
-
-                <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
+                <div class="col-lg-4 col-md-12 footer-contact text-center text-lg-start">
                     <h4>Contact Us</h4>
                     <p>
                         <br>
