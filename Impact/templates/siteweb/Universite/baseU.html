@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ university.username }} - UniCursus{% endblock %}
+
+{% block urlMain %}{% url 'dashboard' %}{% endblock %}
+
+{% block menu %}
+<li><a href="{% url 'dashboard' %}">Home</a></li>
+<li><a href="{% url 'facultes' %}">Écoles / Facultés</a></li>
+<li><a href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block page %}
+<h1>La page</h1>
+{% endblock %}
+
+{% block menuFooter %}
+<li><a href="{% url 'dashboard' %}">Home</a></li>
+<li><a href="{% url 'facultes' %}">Écoles / Facultés</a></li>
+<li><a href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}

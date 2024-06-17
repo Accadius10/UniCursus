@@ -1,0 +1,105 @@
+{% extends 'siteweb/Universite/baseU.html' %}
+
+{% block page %}
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="hero">
+    <div class="container position-relative">
+        <div class="row gy-5" data-aos="fade-in">
+            <div
+                class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+                <h4>{{university.name}}</h4>
+                <h2>Facultés</h2>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 text-end">
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
+                    data-bs-target="#createFacultyModal">
+                    Ajouter une nouvelle faculté ou école
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Hero Section -->
+
+<!-- Liste des facultés -->
+<section id="facultes" class="container">
+    <!-- Tableau des facultés -->
+    <div class="accordion" id="accordionFacultes">
+        {% for faculty in university.faculties.all %}
+        <div class="card">
+            <div class="card-header" id="heading{{ faculty.id }}">
+                <h3 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse"
+                        data-target="#collapse{{ faculty.id }}" aria-expanded="true"
+                        aria-controls="collapse{{ faculty.id }}">
+                        {{ faculty.name }}
+                    </button>
+                </h3>
+            </div>
+
+            <div id="collapse{{ faculty.id }}" class="collapse" aria-labelledby="heading{{ faculty.id }}"
+                data-parent="#accordionFacultes">
+                <div class="card-body">
+                    {% if faculty.sectors.all %}
+                    <h4>Secteurs</h4>
+                    <ul>
+                        {% for sector in faculty.sectors.all %}
+                        <li>{{ sector.name }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <h4>Filières</h4>
+                    <ul>
+                        {% for filiere in faculty.filieres.all %}
+                        <li>{{ filiere.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Modal de création de faculté -->
+<div class="modal fade" id="createFacultyModal" tabindex="-1" aria-labelledby="createFacultyModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createFacultyModalLabel">Ajouter une nouvelle faculté</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulaire étape 1 : Informations générales sur la faculté -->
+                <div id="step1">
+                    <form>
+                        <div class="form-group mb-3">
+                            <label for="facultyName" class="form-label">Nom de la faculté/École</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="isFaculte" class="form-label">Faculté ou École ?</label>
+                            <div>
+                                {% for radio in form.isFaculte %}
+                                <div class="form-check form-check-inline">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="sectorNmbre" class="form-label">Nombre de secteur (si vous n'avez pas de
+                                secteur, mettez 1)</label>
+                            {{ form.nombre_secteur }}
+                        </div>
+                        <button type="submit" class="btn btn-primary next-step">Étape suivante</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
