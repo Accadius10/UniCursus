@@ -18,7 +18,7 @@ class University(models.Model):
 
 class Faculty(models.Model):
     name = models.CharField(max_length=150, null=False)
-    isFaculte = models.BooleanField(default=True, null=False)
+    isFaculte = models.IntegerField(default=1, null=False)
     nombre_secteur = models.IntegerField(default=1)
     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name='faculties', null=False)
 

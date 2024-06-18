@@ -74,13 +74,14 @@
             <div class="modal-body">
                 <!-- Formulaire étape 1 : Informations générales sur la faculté -->
                 <div id="step1">
-                    <form>
+                    <form action="{% url 'createFaculte' %}" method="post">
+                        {% csrf_token %}
                         <div class="form-group mb-3">
                             <label for="facultyName" class="form-label">Nom de la faculté/École</label>
                             {{ form.name }}
                         </div>
                         <div class="form-group mb-3">
-                            <label for="isFaculte" class="form-label">Faculté ou École ?</label>
+                            <label for="isFaculty" class="form-label">Faculté ou École ?</label>
                             <div>
                                 {% for radio in form.isFaculte %}
                                 <div class="form-check form-check-inline">
@@ -102,4 +103,37 @@
         </div>
     </div>
 </div>
+
+<!-- Modal d'erreur -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Erreur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if messages %}
+                <div class="alert alert-danger text-center pb-0">
+                    <ul>
+                        {% for message in messages %}
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if messages %}
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+        {% endif %}
+    });
+</script>
+
 {% endblock %}
