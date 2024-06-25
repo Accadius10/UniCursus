@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,8 +12,8 @@
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <!--link href="static/img/favicon.png" rel="icon">
-  <link href="static/img/apple-touch-icon.png" rel="apple-touch-icon"-->
+    <!--link href="{% static 'img/favicon.png' %}" rel="icon">
+    <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon"-->
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,14 +23,14 @@
         rel="stylesheet">
 
     <!-- Vendor CSS Files -->
-    <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-    <link href="static/vendor/aos/aos.css" rel="stylesheet">
-    <link href="static/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-    <link href="static/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
 
     <!-- Template Main CSS File -->
-    <link href="static/css/main.css" rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
 
     <!-- =======================================================
   * Template Name: Impact
@@ -54,7 +56,7 @@
             <nav id="navbar" class="navbar">
                 <ul>
                     {% block menu %}
-                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Accueil</a></li>
                     {% endblock %}
                 </ul>
             </nav><!-- .navbar -->
@@ -76,7 +78,7 @@
         <div class="container">
             <div class="row gy-4 justify-content-between">
                 <div class="col-lg-4 col-md-12 footer-info pr-5">
-                    <a href="{% url 'accueil' %}" class="logo d-flex align-items-center">
+                    <a href="{% block urlMainF %} # {% endblock %}" class="logo d-flex align-items-center">
                         <span>UniCursus</span>
                     </a>
                     <p>Nous vous rassurons que notre site est le meilleur et plus éfficace.</p>
@@ -89,22 +91,22 @@
                 </div>
 
                 <div class="col-lg-4 footer-links">
-                    <h4>Useful Links</h4>
+                    <h4>Liens utils</h4>
                     <ul>
                         {% block menuFooter %}
-                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Accueil</a></li>
                         {% endblock %}
                     </ul>
                 </div>
 
                 <div class="col-lg-4 col-md-12 footer-contact text-center text-lg-start">
-                    <h4>Contact Us</h4>
+                    <h4>Contactez nous</h4>
                     <p>
                         <br>
                         Abomey- Calavi/ Bénin<br>
                         University of Abomey-Calavi( UAC) <br><br>
-                        <strong>Phone:</strong> +229 67 00 60 45<br>
-                        <strong>Email:</strong> arcadiusagossou172@gmail.com<br>
+                        <strong>Téléphone:</strong> +229 67 00 60 45<br>
+                        <strong>E-mail:</strong> arcadiusagossou172@gmail.com<br>
                     </p>
 
                 </div>
@@ -114,14 +116,14 @@
 
         <div class="container mt-4">
             <div class="copyright">
-                &copy; Copyright <strong><span>UniCursus</span></strong>. All Rights Reserved
+                &copy; Copyright <strong><span>UniCursus</span></strong>. Tous droits réservés
             </div>
             <div class="credits">
                 <!-- All the links in the footer should remain intact. -->
                 <!-- You can delete the links only if you purchased the pro version. -->
                 <!-- Licensing information: https://bootstrapmade.com/license/ -->
                 <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/impact-bootstrap-business-website-template/ -->
-                Designed by <a href="">Equipe UniCursus</a>
+                Réalisé par l'équipe de <a href="">UniCursus</a>
             </div>
         </div>
 
@@ -134,16 +136,16 @@
     <div id="preloader"></div>
 
     <!-- Vendor JS Files -->
-    <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="static/vendor/aos/aos.js"></script>
-    <script src="static/vendor/glightbox/js/glightbox.min.js"></script>
-    <script src="static/vendor/purecounter/purecounter_vanilla.js"></script>
-    <script src="static/vendor/swiper/swiper-bundle.min.js"></script>
-    <script src="static/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-    <script src="static/vendor/php-email-form/validate.js"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/aos/aos.js' %}"></script>
+    <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+    <script src="{% static 'vendor/purecounter/purecounter_vanilla.js' %}"></script>
+    <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
 
     <!-- Template Main JS File -->
-    <script src="static/js/main.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
 
 </body>
 

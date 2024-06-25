@@ -25,40 +25,96 @@
 <section id="facultes" class="container">
     <!-- Tableau des facultés -->
     <div class="accordion" id="accordionFacultes">
+        {% if university.faculties.all %}
         {% for faculty in university.faculties.all %}
         <div class="card">
-            <div class="card-header" id="heading{{ faculty.id }}">
-                <h3 class="mb-0">
-                    <button class="btn btn-link" type="button" data-toggle="collapse"
-                        data-target="#collapse{{ faculty.id }}" aria-expanded="true"
+            <div class="card-header row justify-content-between" id="heading{{ faculty.id }}">
+                <h3 class="mb-0 col">
+                    <button class="btn btn-link" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ faculty.id }}" aria-expanded="true"
                         aria-controls="collapse{{ faculty.id }}">
-                        {{ faculty.name }}
+                        {{ faculty.name }} ({{faculty.sigle}})
                     </button>
                 </h3>
+                <div class="col text-end">
+                    <button type="button" class="btn btn-link" data-bs-toggle="modal"
+                        data-bs-target="#createFiliereModal">
+                        Ajouter une nouvelle filière
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal de création d'une filière -->
+            <div class="modal fade" id="createFiliereModal" tabindex="-1" aria-labelledby="createFiliereModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="createFacultyModalLabel">Ajouter une nouvelle filière</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Informations générales sur la filière -->
+                            <form action="add_filiere/{{ faculty.id }}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group mb-3">
+                                    <label for="sectorName" class="form-label">Nom du secteur dans lequel se trouve la
+                                        filière</label>
+                                    {{ formA.name_sector }}
+                                    <small id="sectorHelp" class="form-text text-muted">Si cette faculté ne dispose pas
+                                        de secteur, remettez le nom de la faculté comme nom du secteur.</small>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="filiereName" class="form-label">Nom de la filière</label>
+                                    {{ formA.name }}
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="filiereSigle" class="form-label">Sigle de la filière</label>
+                                    {{ formA.sigle }}
+                                </div>
+                                <button type="submit" class="btn btn-primary next-step">Ajouter</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="collapse{{ faculty.id }}" class="collapse" aria-labelledby="heading{{ faculty.id }}"
-                data-parent="#accordionFacultes">
+                data-bs-parent="#accordionFacultes">
                 <div class="card-body">
                     {% if faculty.sectors.all %}
-                    <h4>Secteurs</h4>
+                    {% for sector in faculty.sectors.all %}
+                    <h4>{{ sector.name }}</h4>
                     <ul>
-                        {% for sector in faculty.sectors.all %}
-                        <li>{{ sector.name }}</li>
+                        {% for filiere in sector.filieres.all %}
+                        <li>
+                            <h6><a href="filiere/{{filiere.id}}">{{ filiere.name }} (<b>{{filiere.sigle}}</b>)</a></h6>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endfor %}
+                    {% else %}
+                    <ul>
+                        {% for filiere in faculty.filieres.all %}
+                        <li>
+                            <h6><a href="filiere/{{filiere.id}}">{{ filiere.name }} (<b>{{filiere.sigle}}</b>)</a></h6>
+                        </li>
                         {% endfor %}
                     </ul>
                     {% endif %}
-
-                    <h4>Filières</h4>
-                    <ul>
-                        {% for filiere in faculty.filieres.all %}
-                        <li>{{ filiere.name }}</li>
-                        {% endfor %}
-                    </ul>
                 </div>
             </div>
         </div>
         {% endfor %}
+        {% else %}
+        <div class="card">
+            <div class="container">
+                <h3 class="m-3 text-center text-success">
+                    Les facultés et/ou écoles de votre université apparaitrons ici
+                </h3>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </section>
 
@@ -79,6 +135,10 @@
                         <div class="form-group mb-3">
                             <label for="facultyName" class="form-label">Nom de la faculté/École</label>
                             {{ form.name }}
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="facultySigle" class="form-label">Sigle de la faculté/École</label>
+                            {{ form.sigle }}
                         </div>
                         <div class="form-group mb-3">
                             <label for="isFaculty" class="form-label">Faculté ou École ?</label>
@@ -133,6 +193,13 @@
         var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
         errorModal.show();
         {% endif %}
+
+        var sigleInput = document.getElementById('facultySigle');
+        if (sigleInput) {
+            sigleInput.addEventListener('input', function () {
+                this.value = this.value.toUpperCase();
+            });
+        }
     });
 </script>
 

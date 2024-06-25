@@ -5,16 +5,18 @@
 {% block urlMain %}{% url 'dashboard' %}{% endblock %}
 
 {% block menu %}
-<li><a href="{% url 'dashboard' %}">Home</a></li>
+<li><a href="{% url 'dashboard' %}">Accueil</a></li>
 <li><a href="{% url 'facultes' %}">Écoles / Facultés</a></li>
-<li><a href="{% url 'logout' %}">Logout</a></li>
+<li><a href="{% url 'logout' %}">Déconnectez vous</a></li>
 {% endblock %}
 
 {% block page %}
 <h1>La page</h1>
 {% endblock %}
 
+{% block urlMainF %}{% url 'dashboard' %}{% endblock %}
+
 {% block menuFooter %}
-<li><a href="{% url 'dashboard' %}">Home</a></li>
+<li><a href="{% url 'dashboard' %}">Accueil</a></li>
 <li><a href="{% url 'facultes' %}">Écoles / Facultés</a></li>
 {% endblock %}

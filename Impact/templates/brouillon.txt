@@ -1,0 +1,40 @@
+<!-- Section des UEs -->
+<section id="ues" class="ues">
+    <div class="container">
+        <div class="row">
+            {% for year, semesters in ues_by_year_and_semester.items %}
+            <div class="col-lg-12">
+                <h3>Année {{ year }}</h3>
+                {% for semester, ues in semesters.items %}
+                <h4>Semestre {{ semester }}</h4>
+                <ul>
+                    {% for ue in ues %}
+                    <li>{{ ue.name }} ({{ ue.sigle }}) - {{ ue.credit }} crédits</li>
+                    {% endfor %}
+                </ul>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- End Section des UEs -->
+
+
+
+views.py :
+
+ues_by_year_sem = {}
+    ues = UE.objects.filter(filiere=filiere).order_by('year', 'semester')    
+
+    for ue in ues:
+        year = ue.year
+        semester = ue.semester
+
+        if year not in ues_by_year_sem:
+            ues_by_year_sem[year] = {}
+
+        if semester not in ues_by_year_sem[year]:
+            ues_by_year_sem[year][semester] = []
+
+        ues_by_year_sem[year][semester].append(ue)

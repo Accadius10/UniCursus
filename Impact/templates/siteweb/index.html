@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}Accueil - UniCursus{% endblock %}
 
 {% block urlMain %}{% url 'accueil' %}{% endblock %}
 
 {% block menu %}
-<li><a href="#hero">Home</a></li>
-<li><a href="#about">About</a></li>
+<li><a href="#hero">Accueil</a></li>
+<li><a href="#about">À propos</a></li>
 <li><a href="#services">Services</a></li>
-<li><a href="#contact">Contact</a></li>
+<li><a href="#contact">Contactez nous</a></li>
 {% endblock %}
 
 {% block page %}
@@ -26,7 +28,7 @@
         </div>
       </div>
       <div class="col-lg-6 order-1 order-lg-2">
-        <img src="static/img/hero-img.svg" class="img-fluid" alt="" data-aos="zoom-out" data-aos-delay="100">
+        <img src="{% static 'img/hero-img.svg' %}" class="img-fluid" alt="" data-aos="zoom-out" data-aos-delay="100">
       </div>
     </div>
   </div>
@@ -41,14 +43,14 @@
     <div class="container" data-aos="fade-up">
 
       <div class="section-header">
-        <h2>About Us</h2>
+        <h2>À propos de nous</h2>
         <p></p>
       </div>
 
       <div class="row gy-4">
         <div class="col-lg-6">
-          <h3>Pour connaitre le cursus universitaire de quelq'un à l'UAC, Vous n'avez plus de soucis à en fait.</h3>
-          <img src="static/img/about.jpg" class="img-fluid rounded-4 mb-4" alt="">
+          <h3>Pour connaitre le cursus universitaire d'un étudiant, vous n'avez plus de soucis à vous faire.</h3>
+          <img src="{% static 'img/about.jpg' %}" class="img-fluid rounded-4 mb-4" alt="">
           <p>Aujourd'hui on peut constater dans le monde universitaire que certains aiment la vie facile et le fraude
             ce que nous appelons communement la corruption dans le milieu universitaire.</p>
           <p>Des étuiants échouent dans une filières mais arrivent à continuer en année superieure de la même filière
@@ -78,7 +80,7 @@
             </p>
 
             <div class="position-relative mt-4">
-              <img src="static/img/about-2.jpg" class="img-fluid rounded-4" alt="">
+              <img src="{% static 'img/about-2.jpg' %}" class="img-fluid rounded-4" alt="">
               <a href="https://www.youtube.com/watch?v=LXb3EKWsInQ" class="glightbox play-btn"></a>
             </div>
           </div>
@@ -156,7 +158,8 @@
             <div class="testimonial-wrap">
               <div class="testimonial-item">
                 <div class="d-flex align-items-center">
-                  <img src="static/img/testimonials/testimonials-1.jpg" class="testimonial-img flex-shrink-0" alt="">
+                  <img src="{% static 'img/testimonials/testimonials-1.jpg' %}" class="testimonial-img flex-shrink-0"
+                    alt="">
                   <div>
                     <h3>AGOSSOU Prosper</h3>
                     <h4> &amp; Parent d'étuiant</h4>
@@ -180,7 +183,8 @@
             <div class="testimonial-wrap">
               <div class="testimonial-item">
                 <div class="d-flex align-items-center">
-                  <img src="static/img/testimonials/testimonials-2.jpg" class="testimonial-img flex-shrink-0" alt="">
+                  <img src="{% static 'img/testimonials/testimonials-2.jpg' %}" class="testimonial-img flex-shrink-0"
+                    alt="">
                   <div>
                     <h3>Sara Wilsson</h3>
                     <h4>Employeur</h4>
@@ -204,7 +208,8 @@
             <div class="testimonial-wrap">
               <div class="testimonial-item">
                 <div class="d-flex align-items-center">
-                  <img src="static/img/testimonials/testimonials-3.jpg" class="testimonial-img flex-shrink-0" alt="">
+                  <img src="{% static 'img/testimonials/testimonials-3.jpg' %}" class="testimonial-img flex-shrink-0"
+                    alt="">
                   <div>
                     <h3>Jena Karlis</h3>
                     <h4>Chef académique</h4>
@@ -228,7 +233,8 @@
             <div class="testimonial-wrap">
               <div class="testimonial-item">
                 <div class="d-flex align-items-center">
-                  <img src="static/img/testimonials/testimonials-4.jpg" class="testimonial-img flex-shrink-0" alt="">
+                  <img src="{% static 'img/testimonials/testimonials-4.jpg' %}" class="testimonial-img flex-shrink-0"
+                    alt="">
                   <div>
                     <h3>Matt Brandon</h3>
                     <h4>Professeur</h4>
@@ -269,7 +275,7 @@
 
         <div class="col-xl-3 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="100">
           <div class="member">
-            <img src="static/img/team/team-1.jpg" class="img-fluid" alt="">
+            <img src="{% static 'img/team/team-1.jpg' %}" class="img-fluid" alt="">
             <h4>AGOSSOU K. Arcadius</h4>
             <span>Elève Ingenieur en GIT4</span>
             <div class="social">
@@ -283,7 +289,7 @@
 
         <div class="col-xl-3 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="200">
           <div class="member">
-            <img src="static/img/team/team-2.jpg" class="img-fluid" alt="">
+            <img src="{% static 'img/team/team-2.jpg' %}" class="img-fluid" alt="">
             <h4>d'ALMEIDA Hermann </h4>
             <span>Elève Ingenieur en GIT4</span>
             <div class="social">
@@ -297,7 +303,7 @@
 
         <div class="col-xl-3 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="300">
           <div class="member">
-            <img src="static/img/team/team-3.jpg" class="img-fluid" alt="">
+            <img src="{% static 'img/team/team-3.jpg' %}" class="img-fluid" alt="">
             <h4>HONONTA Jodiel</h4>
             <span>Elève Ingenieur en GIT4</span>
             <div class="social">
@@ -311,7 +317,7 @@
 
         <div class="col-xl-3 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="400">
           <div class="member">
-            <img src="static/img/team/team-4.jpg" class="img-fluid" alt="">
+            <img src="{% static 'img/team/team-4.jpg' %}" class="img-fluid" alt="">
             <h4>SOUMANOU Karmal</h4>
             <span>Superviseur</span>
             <div class="social">
@@ -333,7 +339,7 @@
     <div class="container" data-aos="fade-up">
 
       <div class="section-header">
-        <h2>Contact</h2>
+        <h2>Contactez nous</h2>
         <p>Pour toutes questions, veuillez nous contacter par ici.</p>
       </div>
 
@@ -361,16 +367,8 @@
             <div class="info-item d-flex">
               <i class="bi bi-phone flex-shrink-0"></i>
               <div>
-                <h4>Call:</h4>
+                <h4>Téléphone:</h4>
                 <p>+229 67 00 60 45</p>
-              </div>
-            </div><!-- End Info Item -->
-
-            <div class="info-item d-flex">
-              <i class="bi bi-clock flex-shrink-0"></i>
-              <div>
-                <h4>Open Hours:</h4>
-                <p>Tout les jours</p>
               </div>
             </div><!-- End Info Item -->
           </div>
@@ -381,24 +379,25 @@
           <form action="forms/contact.php" method="post" role="form" class="php-email-form">
             <div class="row">
               <div class="col-md-6 form-group">
-                <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
+                <input type="text" name="name" class="form-control" id="name" placeholder="Votre Nom" required>
               </div>
               <div class="col-md-6 form-group mt-3 mt-md-0">
-                <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Votre E-mail" required>
               </div>
             </div>
             <div class="form-group mt-3">
-              <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
+              <input type="text" class="form-control" name="subject" id="subject" placeholder="Objet du message"
+                required>
             </div>
             <div class="form-group mt-3">
               <textarea class="form-control" name="message" rows="7" placeholder="Message" required></textarea>
             </div>
             <div class="my-3">
-              <div class="loading">Loading</div>
+              <div class="loading">Envoi en cours</div>
               <div class="error-message"></div>
-              <div class="sent-message">Your message has been sent. Thank you!</div>
+              <div class="sent-message">Votre message a été envoyé avec succès. Nous vous en remercions !</div>
             </div>
-            <div class="text-center"><button type="submit">Send Message</button></div>
+            <div class="text-center"><button type="submit">Envoyez</button></div>
           </form>
         </div><!-- End Contact Form -->
 
@@ -410,9 +409,11 @@
 </main><!-- End #main -->
 {% endblock %}
 
+{% block urlMainF %}{% url 'accueil' %}{% endblock %}
+
 {% block menuFooter %}
-<li><a href="#hero">Home</a></li>
-<li><a href="#about">About</a></li>
+<li><a href="#hero">Accueil</a></li>
+<li><a href="#about">À propos</a></li>
 <li><a href="#services">Services</a></li>
 <li><a href="#">Terms of service</a></li>
 <li><a href="#">Privacy policy</a></li>

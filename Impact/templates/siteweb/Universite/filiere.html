@@ -1,0 +1,182 @@
+{% extends 'siteweb/Universite/baseU.html' %}
+
+{% load custom_filters %}
+
+{% block title %}{{ filiere.sigle }} - {{ faculty.sigle }} - UniCursus{% endblock %}
+
+{% block page %}
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="hero">
+    <div class="container position-relative">
+        <div class="row gy-5" data-aos="fade-in">
+            <div
+                class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+                <h4>{{university.name}}</h4>
+                <h3 class="text-white">{{ filiere.name }} - {{ faculty.sigle }}</h3>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 text-end">
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
+                    data-bs-target="#addYearModal">
+                    Ajouter une nouvelle année
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Hero Section -->
+
+<!-- Section des Étudiants -->
+<section id="students" class="students">
+    <div class="accordion" id="accordionStudents">
+        {% if students_by_year %}
+        {% for year, students in students_by_year.items %}
+        <div class="card">
+            <div class="card-header" id="heading{{ year }}">
+                <h3 class="mb-0">
+                    <button class="btn btn-link" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ year }}" aria-expanded="true" aria-controls="collapse{{ year }}">
+                        {% if year|equal:1 %}
+                        Première année
+                        {% elif year|equal:2 %}
+                        Deuxième année
+                        {% elif year|equal:3 %}
+                        Troisième année
+                        {% elif year|equal:4 %}
+                        Quatrième année
+                        {% elif year|equal:5 %}
+                        Cinquième année
+                        {% elif year|equal:6 %}
+                        Sixième année
+                        {% elif year|equal:7 %}
+                        Septième année
+                        {% endif %}
+                    </button>
+                </h3>
+            </div>
+
+            <div id="collapse{{ year }}" class="collapse" aria-labelledby="heading{{ year }}"
+                data-bs-parent="#accordionStudents">
+                <div class="card-body p-5">
+                    {% for student in students %}
+                    <div class="row text-center">
+                        <div class="col-3">{{student.matricule}}</div>
+                        <div class="col-6">{{student.name}}</div>
+                        <div class="col-6">{{student.name}}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="card">
+            <div class="container">
+                <h3 class="m-3 text-center text-success">
+                    Les étudiants dans cette filière apparaitrons ici
+                </h3>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+<!-- End Section des Étudiants -->
+
+<!-- Formulaire pour ajouter une nouvelle année -->
+<div class="modal fade" id="addYearModal" tabindex="-1" aria-labelledby="addYearModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addYearModalLabel">Ajouter une nouvelle année</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if messages %}
+                    <div class="alert alert-danger text-center pb-0" role="alert">
+                        {% for message in messages %}
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="mb-5">
+                        <label for="year" class="form-label">Année</label>
+                        <input type="number" class="form-control" id="year" name="year" max="7" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="num_ue_semester_1" class="form-label">Nombre d'UEs pour le semestre 1</label>
+                        <input type="number" class="form-control" id="num_ue_semester_1" name="num_ue_semester_1"
+                            required>
+                    </div>
+                    <div id="ues_inputs_sem1" class="mb-5">
+                        <!-- Inputs pour les UEs du semestre 1 -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="num_ue_semester_2" class="form-label">Nombre d'UEs pour le semestre 2</label>
+                        <input type="number" class="form-control" id="num_ue_semester_2" name="num_ue_semester_2"
+                            required>
+                    </div>
+                    <div id="ues_inputs_sem2" class="mb-5">
+                        <!-- Inputs pour les UEs du semestre 2 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Script pour ajouter dynamiquement les champs pour les UEs par semestre
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fonction pour générer les champs d'entrée pour les UEs en fonction du nombre spécifié
+        function generateUEInputs(numUe, semester) {
+            let html = '';
+            for (let i = 1; i <= numUe; i++) {
+                html += `
+                    <div class="row p-2">
+                        <div class="col-6 pr-2">
+                            <label for="ue_name_${semester}_${i}" class="form-label">Nom de l'UE</label>
+                            <input type="text" class="form-control" id="ue_name_${semester}_${i}" name="ue_name_${semester}_${i}" required>
+                        </div>
+                        <div class="col-3" pr-2>
+                            <label for="ue_sigle_${semester}_${i}" class="form-label">Sigle de l'UE</label>
+                            <input type="text" class="form-control" id="ue_sigle_${semester}_${i}" name="ue_sigle_${semester}_${i}" required>
+                        </div>
+                        <div class="col-3">
+                            <label for="ue_sigle_${semester}_${i}" class="form-label">Nombre de crédit de l'UE</label>
+                            <input type="number" class="form-control" id="ue_sigle_${semester}_${i}" name="ue_sigle_${semester}_${i}" required>
+                        </div>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        // Écouteurs d'événements pour les champs de nombre d'UEs par semestre
+        const numUEInput1 = document.getElementById('num_ue_semester_1');
+        const uesInputsContainer1 = document.getElementById('ues_inputs_sem1');
+
+        numUEInput1.addEventListener('input', function () {
+            uesInputsContainer1.innerHTML = '';
+            const numUe = parseInt(this.value);
+            const html = generateUEInputs(numUe, 1);
+            uesInputsContainer1.innerHTML = html;
+        });
+
+        const numUEInput2 = document.getElementById('num_ue_semester_2');
+        const uesInputsContainer2 = document.getElementById('ues_inputs_sem2');
+
+        numUEInput2.addEventListener('input', function () {
+            uesInputsContainer2.innerHTML = '';
+            const numUe = parseInt(this.value);
+            const html = generateUEInputs(numUe, 2);
+            uesInputsContainer2.innerHTML = html;
+        });
+    });
+</script>
+
+{% endblock %}

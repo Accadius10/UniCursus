@@ -1,5 +1,7 @@
 {% extends 'siteweb/Universite/baseU.html' %}
 
+{% load static %}
+
 {% block page %}
 <!-- ======= Hero Section ======= -->
 <section id="hero" class="hero">
@@ -12,7 +14,8 @@
                 <p>Le meilleur site qui vous aide à gérer vos étudiants par filière et par faculté ou école.</p>
             </div>
             <div class="col-lg-6 order-1 order-lg-2">
-                <img src="static/img/hero-img.svg" class="img-fluid" alt="" data-aos="zoom-out" data-aos-delay="100">
+                <img src="{% static 'img/hero-img.svg' %}" class="img-fluid" alt="" data-aos="zoom-out"
+                    data-aos-delay="100">
             </div>
         </div>
     </div>

@@ -18,6 +18,7 @@ class University(models.Model):
 
 class Faculty(models.Model):
     name = models.CharField(max_length=150, null=False)
+    sigle = models.CharField(max_length=20, null=False)
     isFaculte = models.IntegerField(default=1, null=False)
     nombre_secteur = models.IntegerField(default=1)
     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name='faculties', null=False)
@@ -34,6 +35,7 @@ class Sector(models.Model):
 
 class Filiere(models.Model):
     name = models.CharField(max_length=250, null=False)
+    sigle = models.CharField(max_length=20, null=False)
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE, related_name='filieres')
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name='filieres', null=False)
 
@@ -42,9 +44,11 @@ class Filiere(models.Model):
 
 class UE(models.Model):
     name = models.CharField(max_length=250, null=False)
+    sigle = models.CharField(max_length=20, null=False)
     filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name='ues')
     year = models.IntegerField()
     semester = models.IntegerField()
+    credit = models.IntegerField(default=1)
 
     class Meta:
         unique_together = ('name', 'filiere')
