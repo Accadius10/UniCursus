@@ -112,8 +112,7 @@ def createFaculte(request):
                 university_id = request.session['university_id']
                 university = University.objects.get(id=university_id)
 
-                faculte = Faculty(name=name, sigle=sigle, isFaculte=isFaculte,
-                                  nombre_secteur=nombre_secteur, university=university)
+                faculte = Faculty(name=name, sigle=sigle, isFaculte=isFaculte, nombre_secteur=nombre_secteur, university=university)
                 faculte.save()
 
                 request.session['faculte_id'] = faculte.id
@@ -162,8 +161,7 @@ def create_secteurs_filieres(request):
                     for j in range(nombre_filieres):
                         filiere_name = form.cleaned_data[f'filiere_{i}_{j}_name']
                         filiere_sigle = form.cleaned_data[f'filiere_{i}_{j}_sigle']
-                        filiere = Filiere(
-                            name=filiere_name, sigle=filiere_sigle, sector=secteur, faculty=faculte)
+                        filiere = Filiere(name=filiere_name, sigle=filiere_sigle, sector=secteur, faculty=faculte)
                         filiere.save()
             else:
                 secteur = Sector(name=faculte.name, faculty=faculte)
@@ -174,8 +172,7 @@ def create_secteurs_filieres(request):
                 for i in range(nombre_filieres):
                     filiere_name = form.cleaned_data[f'filiere_{i}_name']
                     filiere_sigle = form.cleaned_data[f'filiere_{i}_sigle']
-                    filiere = Filiere(
-                        name=filiere_name, sigle=filiere_sigle, sector=secteur, faculty=faculte)
+                    filiere = Filiere(name=filiere_name, sigle=filiere_sigle, sector=secteur, faculty=faculte)
                     filiere.save()
 
             # Redirection après l'enregistrement des données
@@ -218,11 +215,9 @@ def addfiliere(request, fac_id):
 
             # Vérifier si cette filière existe déjà dans cette faculté
             if Filiere.objects.filter(name=fil_name, faculty=faculte, sector=sector).exists():
-                messages.error(
-                    request, "Vous ne pouvez avoir deux filières avec le même nom dans la même faculté et/ou secteur. Veuillez vérifier et réessayer.")
+                messages.error(request, "Vous ne pouvez avoir deux filières avec le même nom dans la même faculté et/ou secteur. Veuillez vérifier et réessayer.")
             else:
-                filiere = Filiere(name=fil_name, sigle=fil_sigle,
-                                  faculty=faculte, sector=sector)
+                filiere = Filiere(name=fil_name, sigle=fil_sigle, faculty=faculte, sector=sector)
                 filiere.save()
 
     # Redirection après l'enregistrement des données
@@ -264,23 +259,21 @@ def filiere(request, fil_id):
 
         # Vérifier si des UEs existent déjà pour cette année et cette filière
         if UE.objects.filter(filiere=filiere, year=year).exists():
-            messages.error(
-                request, f"Des UEs existent déjà pour cette année. Veuillez vérifier et réessayer.")
+            messages.error(request, "Des UEs existent déjà pour cette année. Veuillez vérifier et réessayer.")
             return redirect('filiere', fil_id=fil_id)
 
         ues = []
 
         for semester in range(1, 3):  # Boucle pour les deux semestres
-            num_ue_semester = int(request.POST.get(
-                f'num_ue_semester_{semester}'))
+            num_ue_semester = int(request.POST.get(f'num_ue_semester_{semester}'))
             for i in range(1, num_ue_semester + 1):
                 ue_name = request.POST.get(f'ue_name_{semester}_{i}')
                 ue_sigle = request.POST.get(f'ue_sigle_{semester}_{i}')
                 ue_credit = request.POST.get(f'ue_credit_{semester}_{i}')
 
                 # Création des UEs et ajout à la liste
-                ue = UE.objects.create(
-                    name=ue_name, sigle=ue_sigle, filiere=filiere, year=year, semester=semester, credit=ue_credit)
+                ue = UE(name=ue_name, sigle=ue_sigle, filiere=filiere, year=year, semester=semester, credit=ue_credit)
+                ue.save()
                 ues.append(ue)
 
         # Redirection vers la même vue pour rafraîchir les données
