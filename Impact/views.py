@@ -265,11 +265,11 @@ def filiere(request, fil_id):
         ues = []
 
         for semester in range(1, 3):  # Boucle pour les deux semestres
-            num_ue_semester = int(request.POST.get(f'num_ue_semester_{semester}'))
+            num_ue_semester = int(request.POST.get(f'num_ue_semester_{semester}'), 0)
             for i in range(1, num_ue_semester + 1):
                 ue_name = request.POST.get(f'ue_name_{semester}_{i}')
                 ue_sigle = request.POST.get(f'ue_sigle_{semester}_{i}')
-                ue_credit = request.POST.get(f'ue_credit_{semester}_{i}')
+                ue_credit = int(request.POST.get(f'ue_credit_{semester}_{i}'), 0)
 
                 # Création des UEs et ajout à la liste
                 ue = UE(name=ue_name, sigle=ue_sigle, filiere=filiere, year=year, semester=semester, credit=ue_credit)
