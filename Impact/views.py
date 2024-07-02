@@ -4,19 +4,24 @@ from django.contrib import messages
 from .models import *
 from .forms import *
 
+
 def accueil(request):
     return render(request, 'siteweb/index.html')
+
 
 def cursus(request):
     return render(request, 'siteweb/cursus.html')
 
 # Université
+
+
 def login(request):
     if 'university_id' in request.session:
         return redirect('dashboard')
 
     form = LoginForm()
     return render(request, 'siteweb/Login.html', {'form': form})
+
 
 def university_login(request):
     if 'university_id' in request.session:
@@ -33,7 +38,8 @@ def university_login(request):
                 if university.check_password(password):
                     # Log the user in (you can use sessions)
                     request.session['university_id'] = university.id
-                    return redirect('dashboard')  # Go to a dashboard of university
+                    # Go to a dashboard of university
+                    return redirect('dashboard')
                 else:
                     messages.error(request, 'E-mail ou mot de passe invalide')
 
@@ -45,11 +51,13 @@ def university_login(request):
 
     return render(request, 'siteweb/Login.html', {'form': form})
 
+
 def logout(request):
     if 'university_id' in request.session:
         del request.session['university_id']
 
     return redirect('login')
+
 
 def dashboard(request):
     if 'university_id' not in request.session:
@@ -60,13 +68,14 @@ def dashboard(request):
     university = University.objects.get(id=university_id)
     return render(request, 'siteweb/Universite/dashboard.html', {'university': university})
 
+
 def facultes(request):
     if 'university_id' not in request.session:
         return redirect('login')
 
     if 'faculte_id' in request.session:
         del request.session['faculte_id']
-    
+
     # Retrieve university information
     university_id = request.session['university_id']
     university = University.objects.get(id=university_id)
@@ -74,7 +83,7 @@ def facultes(request):
     faculties = university.faculties.all().order_by('name')
 
     form = CreateFacultyForm()
-    
+
     formA = AddFiliereForm()
 
     context = {
@@ -83,8 +92,9 @@ def facultes(request):
         'form': form,
         'formA': formA,
     }
-        
+
     return render(request, 'siteweb/Universite/facultes.html', context)
+
 
 def createFaculte(request):
     if 'university_id' not in request.session:
@@ -102,13 +112,15 @@ def createFaculte(request):
                 university_id = request.session['university_id']
                 university = University.objects.get(id=university_id)
 
-                faculte = Faculty(name=name, sigle=sigle, isFaculte=isFaculte, nombre_secteur=nombre_secteur, university=university)
+                faculte = Faculty(name=name, sigle=sigle, isFaculte=isFaculte,
+                                  nombre_secteur=nombre_secteur, university=university)
                 faculte.save()
 
                 request.session['faculte_id'] = faculte.id
 
-                secteurs_range = range(faculte.nombre_secteur) if faculte.nombre_secteur > 1 else []
-                
+                secteurs_range = range(
+                    faculte.nombre_secteur) if faculte.nombre_secteur > 1 else []
+
                 form = CreateSecteursFilieresForm(faculte)
 
                 context = {
@@ -120,12 +132,14 @@ def createFaculte(request):
                 return render(request, 'siteweb/Universite/create_facultes.html', context)
 
             except Faculty.DoesNotExist:
-                messages.error(request, 'Erreur lors de la création de la faculté')
+                messages.error(
+                    request, 'Erreur lors de la création de la faculté')
 
     else:
         form = CreateFacultyForm()
 
     return redirect('facultes')
+
 
 def create_secteurs_filieres(request):
     if 'university_id' not in request.session:
@@ -148,7 +162,8 @@ def create_secteurs_filieres(request):
                     for j in range(nombre_filieres):
                         filiere_name = form.cleaned_data[f'filiere_{i}_{j}_name']
                         filiere_sigle = form.cleaned_data[f'filiere_{i}_{j}_sigle']
-                        filiere = Filiere(name=filiere_name, sigle=filiere_sigle, sector=secteur, faculty=faculte)
+                        filiere = Filiere(
+                            name=filiere_name, sigle=filiere_sigle, sector=secteur, faculty=faculte)
                         filiere.save()
             else:
                 secteur = Sector(name=faculte.name, faculty=faculte)
@@ -159,10 +174,12 @@ def create_secteurs_filieres(request):
                 for i in range(nombre_filieres):
                     filiere_name = form.cleaned_data[f'filiere_{i}_name']
                     filiere_sigle = form.cleaned_data[f'filiere_{i}_sigle']
-                    filiere = Filiere(name=filiere_name, sigle=filiere_sigle, sector=secteur, faculty=faculte)
+                    filiere = Filiere(
+                        name=filiere_name, sigle=filiere_sigle, sector=secteur, faculty=faculte)
                     filiere.save()
 
-            return redirect('facultes')  # Redirection après l'enregistrement des données
+            # Redirection après l'enregistrement des données
+            return redirect('facultes')
 
     else:
         form = CreateSecteursFilieresForm(faculte)
@@ -174,38 +191,43 @@ def create_secteurs_filieres(request):
     }
     return render(request, 'siteweb/Universite/create_secteurs_filieres.html', context)
 
+
 def addfiliere(request, fac_id):
     if 'university_id' not in request.session:
         return redirect('login')
-    
+
     faculte = Faculty.objects.get(id=fac_id)
-    
+
     if request.method == 'POST':
         form = AddFiliereForm(request.POST)
-        
+
         if form.is_valid():
             sector_name = form.cleaned_data['name_sector']
             fil_name = form.cleaned_data['name']
             fil_sigle = form.cleaned_data['sigle']
-            
+
             # Vérifier si le secteur existe déjà
             try:
                 sector = Sector.objects.get(name=sector_name, faculty=faculte)
             except Sector.DoesNotExist:
                 sector = Sector(name=sector_name, faculty=faculte)
                 sector.save()
-                
+
                 faculte.nombre_secteur += 1
                 faculte.save()
-                
+
             # Vérifier si cette filière existe déjà dans cette faculté
             if Filiere.objects.filter(name=fil_name, faculty=faculte, sector=sector).exists():
-                messages.error(request, "Vous ne pouvez avoir deux filières avec le même nom dans la même faculté et/ou secteur. Veuillez vérifier et réessayer.")
+                messages.error(
+                    request, "Vous ne pouvez avoir deux filières avec le même nom dans la même faculté et/ou secteur. Veuillez vérifier et réessayer.")
             else:
-                filiere = Filiere(name=fil_name, sigle=fil_sigle, faculty=faculte, sector=sector)
+                filiere = Filiere(name=fil_name, sigle=fil_sigle,
+                                  faculty=faculte, sector=sector)
                 filiere.save()
-    
-    return redirect('facultes') # Redirection après l'enregistrement des données
+
+    # Redirection après l'enregistrement des données
+    return redirect('facultes')
+
 
 def filiere(request, fil_id):
     if 'university_id' not in request.session:
@@ -242,23 +264,61 @@ def filiere(request, fil_id):
 
         # Vérifier si des UEs existent déjà pour cette année et cette filière
         if UE.objects.filter(filiere=filiere, year=year).exists():
-            messages.error(request, f"Des UEs existent déjà pour cette année. Veuillez vérifier et réessayer.")
+            messages.error(
+                request, f"Des UEs existent déjà pour cette année. Veuillez vérifier et réessayer.")
             return redirect('filiere', fil_id=fil_id)
 
         ues = []
 
         for semester in range(1, 3):  # Boucle pour les deux semestres
-            num_ue_semester = int(request.POST.get(f'num_ue_semester_{semester}'))
+            num_ue_semester = int(request.POST.get(
+                f'num_ue_semester_{semester}'))
             for i in range(1, num_ue_semester + 1):
                 ue_name = request.POST.get(f'ue_name_{semester}_{i}')
                 ue_sigle = request.POST.get(f'ue_sigle_{semester}_{i}')
                 ue_credit = request.POST.get(f'ue_credit_{semester}_{i}')
 
                 # Création des UEs et ajout à la liste
-                ue = UE.objects.create(name=ue_name, sigle=ue_sigle, filiere=filiere, year=year, semester=semester, credit=ue_credit)
+                ue = UE.objects.create(
+                    name=ue_name, sigle=ue_sigle, filiere=filiere, year=year, semester=semester, credit=ue_credit)
                 ues.append(ue)
 
         # Redirection vers la même vue pour rafraîchir les données
         return redirect('filiere', fil_id=fil_id)
 
     return render(request, 'siteweb/Universite/filiere.html', context)
+
+
+def edit_filiere(request, id):
+    if 'university_id' not in request.session:
+        return redirect('login')
+
+    filiere = Filiere.objects.get(id=id)
+    if filiere:
+        if request.method == 'POST':
+            filiere.name = request.POST.get('name')
+            filiere.sigle = request.POST.get('sigle')
+            filiere.save()
+            messages.success(request, 'Filière mise à jour avec succès.')
+        else:
+            messages.error(request, 'Filière non mise à jour.')
+    else:
+        messages.error(request, 'Filière non mise à jour.')
+        
+    return redirect('facultes')
+
+
+def delete_filiere(request, id):
+    if 'university_id' not in request.session:
+        return redirect('login')
+
+    filiere = Filiere.objects.get(id=id)
+    if filiere:
+        filiere.delete = True
+        filiere.save()
+        messages.success(request, 'Filière supprimée avec succès.')
+    else:
+        messages.error(request, 'Filière non supprimée.')
+        
+    return redirect('facultes')
+

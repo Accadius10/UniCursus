@@ -38,24 +38,25 @@
                 </h3>
                 <div class="col text-end">
                     <button type="button" class="btn btn-link" data-bs-toggle="modal"
-                        data-bs-target="#createFiliereModal">
+                        data-bs-target="#createFiliereModal{{faculty.id}}">
                         Ajouter une nouvelle filière
                     </button>
                 </div>
             </div>
 
-            <!-- Modal de création d'une filière -->
-            <div class="modal fade" id="createFiliereModal" tabindex="-1" aria-labelledby="createFiliereModalLabel"
-                aria-hidden="true">
+            <!-- Modal d'ajout d'une filière -->
+            <div class="modal fade" id="createFiliereModal{{faculty.id}}" tabindex="-1"
+                aria-labelledby="createFiliereModalLabel{{faculty.id}}" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="createFacultyModalLabel">Ajouter une nouvelle filière</h5>
+                            <h5 class="modal-title" id="createFacultyModalLabel{{faculty.id}}">Ajouter une nouvelle
+                                filière</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <!-- Informations générales sur la filière -->
-                            <form action="add_filiere/{{ faculty.id }}" method="post">
+                            <form action="add_filiere/{{faculty.id}}" method="post">
                                 {% csrf_token %}
                                 <div class="form-group mb-3">
                                     <label for="sectorName" class="form-label">Nom du secteur dans lequel se trouve la
@@ -87,18 +88,180 @@
                     <h4>{{ sector.name }}</h4>
                     <ul>
                         {% for filiere in sector.filieres.all %}
-                        <li>
-                            <h6><a href="filiere/{{filiere.id}}">{{ filiere.name }} (<b>{{filiere.sigle}}</b>)</a></h6>
+                        {% if not filiere.delete %}
+                        <li class="mb-2">
+                            <div class="row">
+                                <h6 class="col">
+                                    <a href="filiere/{{filiere.id}}">{{ filiere.name }} (<b>{{filiere.sigle}}</b>)</a>
+                                </h6>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#editFiliereModal{{ filiere.id }}">Modifier</button>
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#deleteFiliereModal{{ filiere.id }}">Supprimer</button>
+                                </div>
+                            </div>
                         </li>
+
+                        <!-- Modal de modification d'une filière -->
+                        <div class="modal fade" id="editFiliereModal{{ filiere.id }}" tabindex="-1"
+                            aria-labelledby="editFiliereModalLabel{{ filiere.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editFiliereModalLabel{{ filiere.id }}">Modifier la
+                                            filière</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Informations générales sur la filière -->
+                                        <form action="{% url 'edit_filiere' filiere.id %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="form-group mb-3">
+                                                <label for="sectorName" class="form-label">Nom du secteur</label>
+                                                <input type="text" class="form-control" id="sectorName"
+                                                    name="name_sector" value="{{ filiere.sector.name }}" disabled>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="filiereName" class="form-label">Nom de la filière</label>
+                                                <input type="text" class="form-control" id="filiereName" name="name"
+                                                    value="{{ filiere.name }}" required>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="filiereSigle" class="form-label">Sigle de la filière</label>
+                                                <input type="text" class="form-control" id="filiereSigle" name="sigle"
+                                                    value="{{ filiere.sigle }}" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary next-step">Modifier</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal de suppression d'une filière -->
+                        <div class="modal fade" id="deleteFiliereModal{{ filiere.id }}" tabindex="-1"
+                            aria-labelledby="deleteFiliereModalLabel{{ filiere.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteFiliereModalLabel{{ filiere.id }}">Suppresion
+                                            de filière</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="{% url 'delete_filiere' filiere.id %}" method="post"
+                                            style="display:inline;">
+                                            {% csrf_token %}
+                                            <div class="alert alert-danger text-center pb-0">
+                                                <p>
+                                                    Êtes-vous sûr de vouloir supprimer la filière
+                                                    <b>{{ filiere.name }}</b> ?
+                                                </p>
+                                            </div>
+                                            <button type="button" class="btn btn-primary next-step"
+                                                data-bs-dismiss="modal" aria-label="Close">Annuler</button>
+                                            <button type="submit" class="btn btn-primary next-step">
+                                                Supprimer vraiment
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                         {% endfor %}
                     </ul>
                     {% endfor %}
                     {% else %}
                     <ul>
                         {% for filiere in faculty.filieres.all %}
-                        <li>
-                            <h6><a href="filiere/{{filiere.id}}">{{ filiere.name }} (<b>{{filiere.sigle}}</b>)</a></h6>
+                        {% if not filiere.delete %}
+                        <li class="mb-2">
+                            <div class="row">
+                                <h6 class="col">
+                                    <a href="filiere/{{filiere.id}}">{{ filiere.name }} (<b>{{filiere.sigle}}</b>)</a>
+                                </h6>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#editFiliereModal{{ filiere.id }}">Modifier</button>
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#deleteFiliereModal{{ filiere.id }}">Supprimer</button>
+                                </div>
+                            </div>
                         </li>
+
+                        <!-- Modal de modification d'une filière -->
+                        <div class="modal fade" id="editFiliereModal{{ filiere.id }}" tabindex="-1"
+                            aria-labelledby="editFiliereModalLabel{{ filiere.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editFiliereModalLabel{{ filiere.id }}">Modifier la
+                                            filière</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Informations générales sur la filière -->
+                                        <form action="{% url 'edit_filiere' filiere.id %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="form-group mb-3">
+                                                <label for="sectorName" class="form-label">Nom du secteur</label>
+                                                <input type="text" class="form-control" id="sectorName"
+                                                    name="name_sector" value="{{ filiere.sector.name }}" disabled>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="filiereName" class="form-label">Nom de la filière</label>
+                                                <input type="text" class="form-control" id="filiereName" name="name"
+                                                    value="{{ filiere.name }}" required>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="filiereSigle" class="form-label">Sigle de la filière</label>
+                                                <input type="text" class="form-control" id="filiereSigle" name="sigle"
+                                                    value="{{ filiere.sigle }}" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary next-step">Modifier</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal de suppression d'une filière -->
+                        <div class="modal fade" id="deleteFiliereModal{{ filiere.id }}" tabindex="-1"
+                            aria-labelledby="deleteFiliereModalLabel{{ filiere.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteFiliereModalLabel{{ filiere.id }}">Suppresion
+                                            de filière</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="{% url 'delete_filiere' filiere.id %}" method="post"
+                                            style="display:inline;">
+                                            {% csrf_token %}
+                                            <div class="alert alert-danger text-center pb-0">
+                                                <p>
+                                                    Êtes-vous sûr de vouloir supprimer la filière
+                                                    <b>{{ filiere.name }}</b> ?
+                                                </p>
+                                            </div>
+                                            <button type="button" class="btn btn-primary next-step"
+                                                data-bs-dismiss="modal" aria-label="Close">Annuler</button>
+                                            <button type="submit" class="btn btn-primary next-step">
+                                                Supprimer vraiment
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                         {% endfor %}
                     </ul>
                     {% endif %}
@@ -169,7 +332,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="errorModalLabel">Erreur</h5>
+                <h5 class="modal-title" id="errorModalLabel">! ! !</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
