@@ -12,5 +12,7 @@ urlpatterns = [
     path('create_secteurs_filieres', views.create_secteurs_filieres, name='create_secteurs_filieres'),
     path('add_filiere/<int:fac_id>', views.addfiliere, name='add_filiere'),
     path('filiere/<int:fil_id>', views.filiere, name='filiere'),
+    path('edit_filiere/<int:id>/', views.edit_filiere, name='edit_filiere'),
+    path('delete_filiere/<int:id>/', views.delete_filiere, name='delete_filiere'),
     path('logout', views.logout, name='logout'),
 ]

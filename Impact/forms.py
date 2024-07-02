@@ -1,4 +1,6 @@
 from django import forms
+from .models import Filiere
+
 
 class LoginForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(
@@ -18,6 +20,7 @@ class LoginForm(forms.Form):
             "required": True,
         }
     ), label="password")
+
 
 class CreateFacultyForm(forms.Form):
     name = forms.CharField(widget=forms.TextInput(
@@ -55,6 +58,7 @@ class CreateFacultyForm(forms.Form):
         }
     ), initial=1, label="nombre_secteur")
 
+
 class CreateSecteursFilieresForm(forms.Form):
     def __init__(self, faculte, *args, **kwargs):
         super(CreateSecteursFilieresForm, self).__init__(*args, **kwargs)
@@ -63,7 +67,7 @@ class CreateSecteursFilieresForm(forms.Form):
         if faculte.nombre_secteur > 1:
             for i in range(faculte.nombre_secteur):
                 self.fields[f'secteur_{i}_name'] = forms.CharField(
-                    label=f'Nom du secteur {i + 1}', 
+                    label=f'Nom du secteur {i + 1}',
                     widget=forms.TextInput(attrs={
                         "placeholder": "ex : UCAO Parakou ou secteur industriel",
                         "class": "form-control",
@@ -85,7 +89,7 @@ class CreateSecteursFilieresForm(forms.Form):
                 nombre_filieres = int(self.data.get(f'nombre_filieres_{i}', 0))
                 for j in range(nombre_filieres):
                     self.fields[f'filiere_{i}_{j}_name'] = forms.CharField(
-                        label=f'Nom de la filière {j + 1} pour le secteur {i + 1}', 
+                        label=f'Nom de la filière {j + 1} pour le secteur {i + 1}',
                         widget=forms.TextInput(attrs={
                             "class": "form-control",
                             "placeholder": "Nom de la filière",
@@ -93,7 +97,7 @@ class CreateSecteursFilieresForm(forms.Form):
                         })
                     )
                     self.fields[f'filiere_{i}_{j}_sigle'] = forms.CharField(
-                        label=f'Sigle de la filière {j + 1} pour le secteur {i + 1}', 
+                        label=f'Sigle de la filière {j + 1} pour le secteur {i + 1}',
                         widget=forms.TextInput(attrs={
                             "class": "form-control",
                             "placeholder": "Ex: GIT",
@@ -116,7 +120,7 @@ class CreateSecteursFilieresForm(forms.Form):
             nombre_filieres = int(self.data.get('nombre_filieres', 0))
             for i in range(nombre_filieres):
                 self.fields[f'filiere_{i}_name'] = forms.CharField(
-                    label=f'Nom de la filière {i + 1}', 
+                    label=f'Nom de la filière {i + 1}',
                     widget=forms.TextInput(attrs={
                         "class": "form-control",
                         "placeholder": "Nom de la filière",
@@ -124,7 +128,7 @@ class CreateSecteursFilieresForm(forms.Form):
                     })
                 )
                 self.fields[f'filiere_{i}_sigle'] = forms.CharField(
-                    label=f'Sigle de la filière {i + 1}', 
+                    label=f'Sigle de la filière {i + 1}',
                     widget=forms.TextInput(attrs={
                         "class": "form-control",
                         "placeholder": "Ex: GIT",
@@ -141,19 +145,24 @@ class CreateSecteursFilieresForm(forms.Form):
             for i in range(faculte.nombre_secteur):
                 nombre_filieres = cleaned_data.get(f'nombre_filieres_{i}', 0)
                 for j in range(nombre_filieres):
-                    cleaned_data[f'filiere_{i}_{j}_name'] = self.cleaned_data.get(f'filiere_{i}_{j}_name')
-                    cleaned_data[f'filiere_{i}_{j}_sigle'] = self.cleaned_data.get(f'filiere_{i}_{j}_sigle')
+                    cleaned_data[f'filiere_{i}_{j}_name'] = self.cleaned_data.get(
+                        f'filiere_{i}_{j}_name')
+                    cleaned_data[f'filiere_{i}_{j}_sigle'] = self.cleaned_data.get(
+                        f'filiere_{i}_{j}_sigle')
         else:
             nombre_filieres = cleaned_data.get('nombre_filieres', 0)
             for i in range(nombre_filieres):
-                cleaned_data[f'filiere_{i}_name'] = self.cleaned_data.get(f'filiere_{i}_name')
-                cleaned_data[f'filiere_{i}_sigle'] = self.cleaned_data.get(f'filiere_{i}_sigle')
+                cleaned_data[f'filiere_{i}_name'] = self.cleaned_data.get(
+                    f'filiere_{i}_name')
+                cleaned_data[f'filiere_{i}_sigle'] = self.cleaned_data.get(
+                    f'filiere_{i}_sigle')
 
         return cleaned_data
 
+
 class AddFiliereForm(forms.Form):
     name = forms.CharField(
-        label='Nom de la filière', 
+        label='Nom de la filière',
         widget=forms.TextInput(attrs={
             "class": "form-control",
             "placeholder": "Nom de la filière",
@@ -161,9 +170,9 @@ class AddFiliereForm(forms.Form):
             "required": True
         })
     )
-    
+
     sigle = forms.CharField(
-        label='Sigle de la filière', 
+        label='Sigle de la filière',
         widget=forms.TextInput(attrs={
             "id": 'filiereSigle',
             "class": "form-control",
@@ -171,7 +180,7 @@ class AddFiliereForm(forms.Form):
             "required": True
         })
     )
-    
+
     name_sector = forms.CharField(widget=forms.TextInput(
         attrs={
             "placeholder": "Nom du secteur",

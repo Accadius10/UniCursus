@@ -36,6 +36,7 @@ class Sector(models.Model):
 class Filiere(models.Model):
     name = models.CharField(max_length=250, null=False)
     sigle = models.CharField(max_length=20, null=False)
+    delete = models.BooleanField(default=False)
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE, related_name='filieres')
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name='filieres', null=False)
 
