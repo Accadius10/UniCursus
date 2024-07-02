@@ -244,6 +244,18 @@ def filiere(request, fil_id):
             students_by_year[year] = []
 
         students_by_year[year].append(student)
+        
+    # Récupérer tous les ues de la filière et les classer par année
+    ues_by_year = {}
+    ues = UE.objects.filter(filiere=filiere).order_by('year')    
+
+    for ue in ues:
+        year = ue.year
+
+        if year not in ues_by_year:
+            ues_by_year[year] = []
+
+        ues_by_year[year].append(ue)
 
     context = {
         'university': university,
@@ -251,6 +263,7 @@ def filiere(request, fil_id):
         'sector': filiere.sector,
         'filiere': filiere,
         'students_by_year': students_by_year,
+        'ues_by_year': ues_by_year,
     }
 
     if request.method == 'POST':
@@ -259,7 +272,7 @@ def filiere(request, fil_id):
 
         # Vérifier si des UEs existent déjà pour cette année et cette filière
         if UE.objects.filter(filiere=filiere, year=year).exists():
-            messages.error(request, "Des UEs existent déjà pour cette année. Veuillez vérifier et réessayer.")
+            messages.error(request, "Cette année existe déjà. Veuillez vérifier et réessayer.")
             return redirect('filiere', fil_id=fil_id)
 
         ues = []

@@ -1,6 +1,6 @@
 {% extends 'siteweb/Universite/baseU.html' %}
 
-{% load custom_filters %}
+{% load custom_tags %}{% load custom_filters %}
 
 {% block title %}{{ filiere.sigle }} - {{ faculty.sigle }} - UniCursus{% endblock %}
 
@@ -28,8 +28,8 @@
 <!-- Section des Étudiants -->
 <section id="students" class="students">
     <div class="accordion" id="accordionStudents">
-        {% if students_by_year %}
-        {% for year, students in students_by_year.items %}
+        {% if ues_by_year %}
+        {% for year in ues_by_year %}
         <div class="card">
             <div class="card-header" id="heading{{ year }}">
                 <h3 class="mb-0">
@@ -57,13 +57,19 @@
             <div id="collapse{{ year }}" class="collapse" aria-labelledby="heading{{ year }}"
                 data-bs-parent="#accordionStudents">
                 <div class="card-body p-5">
-                    {% for student in students %}
+                    {% if students_by_year|get_dic:year %}
+                    {% for student in students_by_year|get_dic:year %}
                     <div class="row text-center">
                         <div class="col-3">{{student.matricule}}</div>
                         <div class="col-6">{{student.name}}</div>
                         <div class="col-6">{{student.name}}</div>
                     </div>
                     {% endfor %}
+                    {% else %}
+                    <h3 class="m-3 text-center text-success">
+                        Aucun étudiant inscrit dans cette année
+                    </h3>
+                    {% endif %}
                 </div>
             </div>
         </div>
