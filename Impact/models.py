@@ -41,7 +41,7 @@ class Filiere(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, related_name='filieres', null=False)
 
     class Meta:
-        unique_together = ('name', 'faculty')
+        unique_together = ('name', 'faculty', 'sector')
 
 class UE(models.Model):
     name = models.CharField(max_length=250, null=False)
@@ -50,9 +50,10 @@ class UE(models.Model):
     year = models.IntegerField()
     semester = models.IntegerField()
     credit = models.IntegerField(default=1)
+    delete = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('name', 'filiere')
+        unique_together = ('name', 'filiere', 'year', 'semester')
 
 class Student(models.Model):
     name = models.CharField(max_length=500, null=False)

@@ -1,0 +1,220 @@
+{% extends 'siteweb/Universite/baseU.html' %}
+
+{% load custom_tags %}{% load custom_filters %}
+
+{% block title %}{{ filiere.sigle }} - {{ faculty.sigle }} - Année {{ year }} - UniCursus{% endblock %}
+
+{% block page %}
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="hero">
+    <div class="container position-relative">
+        <div class="row gy-5" data-aos="fade-in">
+            <div
+                class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+                <h4>{{university.name}}</h4>
+                <h3 class="text-white">{{ filiere.sigle }} - {{ faculty.sigle }} // Année : {{ year }}</h3>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 text-end">
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUeModal">
+                    Ajouter une nouvelle ue
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Hero Section -->
+
+<!-- Section des UEs -->
+<section id="ues" class="container">
+    <div class="accordion" id="accordionUes">
+        {% if ues_by_semester %}
+        {% for semester, ues in ues_by_semester.items %}
+        <h3>Semestre {{ semester }}</h3>
+        <table class="table table-striped mb-5">
+            <thead>
+                <tr>
+                    <th class="col-4">Nom</th>
+                    <th class="col-2 text-center">Sigle</th>
+                    <th class="col-2 text-center">Crédit</th>
+                    <th class="col-4 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ue in ues %}
+                {% if not ue.delete %}
+                <tr>
+                    <td>{{ ue.name }}</td>
+                    <td class="text-center">{{ ue.sigle }}</td>
+                    <td class="text-center">{{ ue.credit }}</td>
+                    <td class="text-center">
+                        <!-- Ajouter des boutons pour modifier et supprimer ici -->
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#editUeModal{{ ue.id }}">Modifier</button>
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#deleteUeModal{{ ue.id }}">Supprimer</button>
+                    </td>
+                </tr>
+
+                <!-- Modal de modification d'une ue -->
+                <div class="modal fade" id="editUeModal{{ ue.id }}" tabindex="-1"
+                    aria-labelledby="editUeModalLabel{{ ue.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editUeModalLabel{{ ue.id }}">Modifier l'UE</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="type" id="type" value="edit">
+                                    <input type="hidden" name="ueId" id="ueId" value="{{ ue.id }}">
+                                    <div class="mb-5">
+                                        <label for="year" class="form-label">C'est une UE de quel année</label>
+                                        <input type="number" class="form-control" id="year" name="year" max="7" min="1"
+                                            value="{{ ue.year }}" required>
+                                    </div>
+                                    <div class="mb-5">
+                                        <label for="semester" class="form-label">C'est une UE de quel semestre</label>
+                                        <input type="number" class="form-control" id="semester" name="semester" max="2"
+                                            min="1" value="{{ ue.semester }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Quel est le nom de l'UE</label>
+                                        <input type="text" class="form-control" id="name" name="name"
+                                            value="{{ ue.name }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="sigle" class="form-label">Quel est le sigle de l'UE</label>
+                                        <input type="text" class="form-control" id="sigle" name="sigle"
+                                            value="{{ ue.sigle }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="credit" class="form-label">Combien de crédit pour l'UE</label>
+                                        <input type="number" class="form-control" id="credit" name="credit"
+                                            value="{{ ue.credit }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Fermer</button>
+                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal de suppression d'une ue -->
+                <div class="modal fade" id="deleteUeModal{{ ue.id }}" tabindex="-1"
+                    aria-labelledby="deleteUeModalLabel{{ ue.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteUeModalLabel{{ ue.id }}">Suppresion d'une UE</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <div class="alert alert-danger text-center pb-0">
+                                        <p>
+                                            Êtes-vous sûr de vouloir supprimer l'UE
+                                            <b>{{ ue.name }}</b> ?
+                                        </p>
+                                    </div>
+                                    <input type="hidden" name="type" id="type" value="delete">
+                                    <input type="hidden" name="ueId" id="ueId" value="{{ ue.id }}">
+                                    <button type="button" class="btn btn-primary next-step" data-bs-dismiss="modal"
+                                        aria-label="Close">Annuler</button>
+                                    <button type="submit" class="btn btn-primary next-step">Supprimer vraiment</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+        {% endif %}
+    </div>
+</section>
+<!-- End Section des UEs -->
+
+<!-- Formulaire pour ajouter une nouvelle ue -->
+<div class="modal fade" id="addUeModal" tabindex="-1" aria-labelledby="addUeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUeModalLabel">Ajouter une nouvelle ue</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="type" id="type" value="ajout">
+                    <div class="mb-5">
+                        <label for="semester" class="form-label">C'est une UE de quel semestre</label>
+                        <input type="number" class="form-control" id="semester" name="semester" max="2" min="1"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Quel est le nom de l'UE</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sigle" class="form-label">Quel est le sigle de l'UE</label>
+                        <input type="text" class="form-control" id="sigle" name="sigle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="credit" class="form-label">Combien de crédit pour l'UE</label>
+                        <input type="number" class="form-control" id="credit" name="credit" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'erreur -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">! ! !</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if messages %}
+                <div class="alert alert-danger text-center pb-0">
+                    <ul>
+                        {% for message in messages %}
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Affichage du modal d'erreur
+        {% if messages %}
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+        {% endif %}
+    });
+</script>
+
+{% endblock %}

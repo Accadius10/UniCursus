@@ -273,6 +273,7 @@ def filiere(request, fil_id):
         # Vérifier si des UEs existent déjà pour cette année et cette filière
         if UE.objects.filter(filiere=filiere, year=year).exists():
             messages.error(request, "Cette année existe déjà. Veuillez vérifier et réessayer.")
+            messages.error(request, "Ou cliquez sur <<Gérer les UEs ici>> pour gérer les UEs de cette année")
             return redirect('filiere', fil_id=fil_id)
 
         ues = []
@@ -328,3 +329,82 @@ def delete_filiere(request, id):
         
     return redirect('facultes')
 
+def manage_ue(request, fil_id, year):
+    if 'university_id' not in request.session:
+        return redirect('login')
+    
+    university_id = request.session.get('university_id')
+    university = University.objects.get(id=university_id)
+    
+    filiere = Filiere.objects.get(id=fil_id)
+    
+    # Récupérer les ues de cette année et les classer par semestre
+    ues_by_semester = {}
+    ues = UE.objects.filter(filiere=filiere, year=year).order_by('semester')
+
+    for ue in ues:
+        semester = ue.semester
+
+        if semester not in ues_by_semester:
+            ues_by_semester[semester] = []
+
+        ues_by_semester[semester].append(ue)
+    
+    if request.method == 'POST':
+        type = request.POST.get('type')
+        
+        if type == 'ajout': # Gestion de l'ajout
+            semester = request.POST.get('semester')
+            name = request.POST.get('name')
+            sigle = request.POST.get('sigle')
+            credit = request.POST.get('credit')
+            
+            try:
+                ue = UE(name=name, sigle=sigle, filiere=filiere, year=year, semester=semester, credit=credit)
+                ue.save()
+            except Exception as e:
+                messages.error(request, 'Erreur d\'ajout de l\'UE')
+                messages.error(request, str(e))
+                
+        elif type == 'edit': # Gestion de la modification
+            try:
+                ueId = request.POST.get('ueId')
+                ue = UE.objects.get(id=ueId)
+
+                ue.name = request.POST.get('name')
+                ue.sigle = request.POST.get('sigle')
+                ue.credit = request.POST.get('credit')
+                ue.semester = request.POST.get('semester')
+                ue.year = request.POST.get('year')
+                
+                ue.save()
+                messages.success(request, 'UE mise à jour avec succès.')
+            except Exception as e:
+                messages.error(request, 'Erreur de modification de l\'UE')
+                messages.error(request, str(e))
+            
+        elif type == 'delete': # Gestion de la suppression
+            try:
+                ueId = request.POST.get('ueId')
+                ue = UE.objects.get(id=ueId)
+
+                ue.delete = True
+                
+                ue.save()
+                messages.success(request, 'UE supprimé avec succès.')
+            except Exception as e:
+                messages.error(request, 'Erreur de suppression de l\'UE')
+                messages.error(request, str(e))
+        
+        return redirect('manage_ue', fil_id=fil_id, year=year)
+
+    context = {
+        'university': university,
+        'faculty': filiere.faculty,
+        'sector': filiere.sector,
+        'filiere': filiere,
+        'year': year,
+        'ues_by_semester': ues_by_semester,
+    }
+    
+    return render(request, 'siteweb/Universite/manage_ue.html', context)

@@ -26,13 +26,13 @@
 <!-- End Hero Section -->
 
 <!-- Section des Étudiants -->
-<section id="students" class="students">
+<section id="students" class="container">
     <div class="accordion" id="accordionStudents">
         {% if ues_by_year %}
         {% for year in ues_by_year %}
         <div class="card">
-            <div class="card-header" id="heading{{ year }}">
-                <h3 class="mb-0">
+            <div class="card-header row justify-content-between" id="heading{{ year }}">
+                <h3 class="mb-0 col">
                     <button class="btn btn-link" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapse{{ year }}" aria-expanded="true" aria-controls="collapse{{ year }}">
                         {% if year|equal:1 %}
@@ -52,6 +52,9 @@
                         {% endif %}
                     </button>
                 </h3>
+                <div class="col text-end">
+                    <a href="{% url 'manage_ue' filiere.id year %}" class="btn btn-info">Gérer les UEs ici</a>
+                </div>
             </div>
 
             <div id="collapse{{ year }}" class="collapse" aria-labelledby="heading{{ year }}"
@@ -98,13 +101,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    {% if messages %}
-                    <div class="alert alert-danger text-center pb-0" role="alert">
-                        {% for message in messages %}
-                        <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
                     <div class="mb-5">
                         <label for="year" class="form-label">Année</label>
                         <input type="number" class="form-control" id="year" name="year" max="7" min="1" required>
@@ -135,9 +131,38 @@
     </div>
 </div>
 
+<!-- Modal d'erreur -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">! ! !</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if messages %}
+                <div class="alert alert-danger text-center pb-0">
+                    <ul>
+                        {% for message in messages %}
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Script pour ajouter dynamiquement les champs pour les UEs par semestre
     document.addEventListener('DOMContentLoaded', function () {
+        // Affichage du Modal d'erreur
+        {% if messages %}
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+        {% endif %}
+
         // Fonction pour générer les champs d'entrée pour les UEs en fonction du nombre spécifié
         function generateUEInputs(numUe, semester) {
             let html = '';
