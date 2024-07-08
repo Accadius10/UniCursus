@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import *
 from .forms import *
 
@@ -214,7 +215,7 @@ def addfiliere(request, fac_id):
                 faculte.save()
 
             # Vérifier si cette filière existe déjà dans cette faculté
-            if Filiere.objects.filter(name=fil_name, faculty=faculte, sector=sector).exists():
+            if Filiere.objects.filter(name=fil_name, faculty=faculte, sector=sector, delete=False).exists():
                 messages.error(request, "Vous ne pouvez avoir deux filières avec le même nom dans la même faculté et/ou secteur. Veuillez vérifier et réessayer.")
             else:
                 filiere = Filiere(name=fil_name, sigle=fil_sigle, faculty=faculte, sector=sector)
@@ -235,15 +236,15 @@ def filiere(request, fil_id):
 
     # Récupérer tous les étudiants de la filière et les classer par année
     students_by_year = {}
-    students = filiere.students.order_by('current_year')
+    students = filiere.student_years_filieres.filter(current=True).order_by('year')
 
     for student in students:
-        year = student.current_year
+        year = student.year
 
         if year not in students_by_year:
             students_by_year[year] = []
 
-        students_by_year[year].append(student)
+        students_by_year[year].append(student.student)
         
     # Récupérer tous les ues de la filière et les classer par année
     ues_by_year = {}
@@ -408,3 +409,71 @@ def manage_ue(request, fil_id, year):
     }
     
     return render(request, 'siteweb/Universite/manage_ue.html', context)
+
+def inscription(request):
+    if 'university_id' not in request.session:
+        return redirect('login')
+    
+    university_id = request.session['university_id']
+    university = University.objects.get(id=university_id)
+    
+    faculties = Faculty.objects.filter(university=university)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        matricule = request.POST.get('matricule')
+        email = request.POST.get('email')
+        telephone = request.POST.get('telephone')
+        filiere_id = request.POST.get('filiere')
+        current_year = request.POST.get('current_year')
+        academic_year = request.POST.get('academic_year')
+
+        try:
+            filiere = Filiere.objects.get(id=filiere_id)
+            student, created = Student.objects.get_or_create(
+                matricule=matricule,
+                defaults={'name': name, 'email': email, 'telephone': telephone}
+            )
+            student.filieres.add(filiere)
+            
+            StudentYear.objects.create(
+                student=student,
+                filiere=filiere,
+                year=current_year,
+                academic_year=academic_year,
+                current=True
+            )
+            
+            messages.success(request, 'Étudiant inscrit avec succès.')
+            return redirect('inscription')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'inscription: {e}')
+
+    context = {
+        'university': university,
+        'faculties': faculties,
+    }
+
+    return render(request, 'siteweb/Universite/inscription.html', context)
+
+def get_filieres(request, faculty_id):
+    faculty = Faculty.objects.get(id=faculty_id)
+    filieres = Filiere.objects.filter(faculty=faculty, delete=False)
+    filieres_data = [{'id': filiere.id, 'name': filiere.name} for filiere in filieres]
+    
+    return JsonResponse({'filieres': filieres_data})
+
+def get_years_fil(request, fil_id):
+    filiere = Filiere.objects.get(id=fil_id)
+    ues = UE.objects.filter(filiere=filiere).order_by('year')
+    
+    y_l = ["Première année", "Deuxième année", "Troisième année", "Quatrième année", "Cinquième année", "Sixième année", "Septième année"]
+    year_fil = []
+    year = []
+
+    for ue in ues:
+        if ue.year not in year:
+            year.append(ue.year)
+            year_fil.append({'value': ue.year, 'text': y_l[ue.year - 1]})
+            
+    return JsonResponse({'year_fil': year_fil})

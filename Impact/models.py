@@ -61,7 +61,6 @@ class Student(models.Model):
     email = models.EmailField(unique=True ,null=False)
     telephone = models.BigIntegerField(unique=True ,null=False)
     filieres = models.ManyToManyField(Filiere, related_name='students')
-    current_year = models.IntegerField(default=1)
 
 class Grade(models.Model):
     ue = models.ForeignKey(UE, on_delete=models.CASCADE, related_name='grades')
@@ -72,6 +71,7 @@ class StudentYear(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='student_years')
     filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name='student_years_filieres')
     year = models.IntegerField()
+    current = models.BooleanField(default=True)
     academic_year = models.CharField(max_length=20, default='2019-2020')
     admitted = models.BooleanField(default=False)
 

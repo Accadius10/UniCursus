@@ -18,5 +18,8 @@ urlpatterns = [
     path('edit_filiere/<int:id>/', views.edit_filiere, name='edit_filiere'),
     path('delete_filiere/<int:id>/', views.delete_filiere, name='delete_filiere'),
     path('manage_ue/<int:fil_id>/<int:year>/', views.manage_ue, name='manage_ue'),
+    path('inscription', views.inscription, name='inscription'),
+    path('get_filieres/<int:faculty_id>/', views.get_filieres, name='get_filieres'),
+    path('get_years/<int:fil_id>/', views.get_years_fil, name='get_filieres'),
     path('logout', views.logout, name='logout'),
 ]

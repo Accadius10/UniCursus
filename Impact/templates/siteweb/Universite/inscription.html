@@ -1,0 +1,157 @@
+{% extends 'siteweb/Universite/baseU.html' %}
+
+{% load static %}
+
+{% block page %}
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="hero">
+    <div class="container position-relative">
+        <div class="row gy-5" data-aos="fade-in">
+            <div
+                class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+                <h2 class="mb-5">Inscrivez un étudiant</h2>
+                <h4>{{ university.name }}</h4>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2">
+                <img src="{% static 'img/hero-img.svg' %}" class="img-fluid" alt="" data-aos="zoom-out"
+                    data-aos-delay="100">
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Hero Section -->
+
+<!-- Section de formulaire d'inscription -->
+<section id="inscription" class="container">
+    <div class="accordion" id="accordionInscription">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center"><b>Inscrivez un étudiant</b></h2>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="card-body p-5 bg-dark text-white fs-5">
+                    <div class="mb-5">
+                        <label for="name" class="form-label"><b>Nom</b></label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="matricule" class="form-label"><b>Matricule</b></label>
+                        <input type="number" class="form-control" id="matricule" name="matricule" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="email" class="form-label"><b>Email</b></label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="telephone" class="form-label"><b>Numéro de téléphone</b></label>
+                        <input type="tel" class="form-control" id="telephone" name="telephone" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="faculty" class="form-label"><b>Faculté</b></label>
+                        <select class="form-select" id="faculty" name="faculty" required>
+                            <option value="">Sélectionnez une faculté</option>
+                            {% for faculty in faculties %}
+                            <option value="{{ faculty.id }}">{{ faculty.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-5">
+                        <label for="filiere" class="form-label"><b>Filière</b></label>
+                        <select class="form-select" id="filiere" name="filiere" required>
+                            <option value="">Sélectionnez une filière</option>
+                        </select>
+                    </div>
+                    <div class="mb-5">
+                        <label for="current_year" class="form-label"><b>Année d'étude</b></label>
+                        <select class="form-select" id="current_year" name="current_year" required>
+                            <option value="">Sélectionnez l'année d'étude</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="academic_year" class="form-label"><b>Année académique</b></label>
+                        <input type="text" class="form-control" id="academic_year" name="academic_year" required>
+                    </div>
+                </div>
+                <div class="card-footer p-3 text-end">
+                    <button type="submit" class="btn btn-primary" style="font-size: large;"><b>Inscrire un
+                            étudiant</b></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<!-- End Section de formulaire d'inscription -->
+
+<!-- Modal d'erreur -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">! ! !</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if messages %}
+                <div class="alert alert-danger text-center pb-0">
+                    <ul>
+                        {% for message in messages %}
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if messages %}
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+        {% endif %}
+    });
+
+    document.getElementById('faculty').addEventListener('change', function () {
+        const facultyId = this.value;
+        const filiereSelect = document.getElementById('filiere');
+
+        // Clear previous options
+        filiereSelect.innerHTML = '<option value="">Sélectionnez une filière</option>';
+
+        // Fetch filieres for the selected faculty
+        fetch(`/get_filieres/${facultyId}/`)
+            .then(response => response.json())
+            .then(data => {
+                data.filieres.forEach(filiere => {
+                    const option = document.createElement('option');
+                    option.value = filiere.id;
+                    option.textContent = filiere.name;
+                    filiereSelect.appendChild(option);
+                });
+            });
+    });
+
+    document.getElementById('filiere').addEventListener('change', function () {
+        const filiereId = this.value;
+        const yearSelect = document.getElementById('current_year');
+
+        // Clear previous options
+        yearSelect.innerHTML = '<option value="">Sélectionnez l\'année d\'étude</option>';
+
+        // Fetch filieres for the selected faculty
+        fetch(`/get_years/${filiereId}/`)
+            .then(response => response.json())
+            .then(data => {
+                data.year_fil.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year.value;
+                    option.textContent = year.text;
+                    yearSelect.appendChild(option);
+                });
+            });
+    });
+</script>
+{% endblock %}
