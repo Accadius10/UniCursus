@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse
@@ -10,7 +10,16 @@ def accueil(request):
     return render(request, 'siteweb/index.html')
 
 def cursus(request):
-    return render(request, 'siteweb/cursus.html')
+    matricule = request.GET.get('matricule')
+    
+    student = get_object_or_404(Student, matricule=matricule)
+    student_years = StudentYear.objects.filter(student=student).select_related('filiere', 'filiere__faculty', 'filiere__faculty__university')
+
+    context = {
+        'student': student,
+        'student_years': student_years,
+    }
+    return render(request, 'siteweb/cursus.html', context)
 
 # Université
 def login(request):

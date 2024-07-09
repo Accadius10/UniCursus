@@ -1,3 +1,124 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}Cursus - UniCursus{% endblock %}
+
+{% block urlMain %}{% url 'accueil' %}{% endblock %}
+
+{% block menu %}{% endblock %}
+
+{% block page %}
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="hero mb-5">
+    <div class="container position-relative">
+        <div class="row gy-5" data-aos="fade-in">
+            <div
+                class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+                {% if student %}
+                <p class="text-center fs-3">Voici le cursus de</p>
+                <h2>{{ student.name }}</h2>
+                {% else %}
+                <h2>Etudiant non trouvé</h2>
+                {% endif %}
+                <div class="d-flex justify-content-center">
+                    <a href="#" class="btn-get-started m-1 text-center" data-bs-toggle="modal"
+                        data-bs-target="#matriculeModal">
+                        Rechercher le parcours d'un étudiant
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2">
+                <img src="{% static 'img/hero-img.svg' %}" class="img-fluid" alt="" data-aos="zoom-out"
+                    data-aos-delay="100">
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Hero Section -->
+
+<!-- Modal Recherche cursus -->
+<div class="modal fade" id="matriculeModal" tabindex="-1" aria-labelledby="matriculeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="matriculeModalLabel">Entrer le matricule de l'étudiant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="matriculeForm" method="get" action="{% url 'cursus' %}">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="matricule" name="matricule" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="submitMatriculeForm()">Voir le parcours</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ student.name }}</h5>
+            <p><strong>Matricule:</strong> {{ student.matricule }}</p>
+            <p><strong>Email:</strong> {{ student.email }}</p>
+            <p><strong>Téléphone:</strong> {{ student.telephone }}</p>
+        </div>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Université</th>
+                <th>Faculté</th>
+                <th>Filière</th>
+                <th>Année d'étude</th>
+                <th>Année académique</th>
+                <th>Décision</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for year in student_years %}
+            <tr>
+                <td>{{ year.filiere.faculty.university.name }}</td>
+                <td>{{ year.filiere.faculty.name }}</td>
+                <td>{{ year.filiere.name }}</td>
+                <td>{{ year.year }}</td>
+                <td>{{ year.academic_year }}</td>
+                <td>
+                    {% if year.admitted %}
+                    Admis
+                    {% elif year.enjambed %}
+                    Enjamber
+                    {% elif year.current %}
+                    En attente
+                    {% else %}
+                    Redoubler
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function submitMatriculeForm() {
+        document.getElementById('matriculeForm').submit();
+    }
+</script>
+{% endblock %}
+
+{% block urlMainF %}{% url 'accueil' %}{% endblock %}
+
+{% block menuFooter %}
+<li><a href="#hero">Accueil</a></li>
+<li><a href="#about">À propos</a></li>
+<li><a href="#services">Services</a></li>
+<li><a href="#">Terms of service</a></li>
+<li><a href="#">Privacy policy</a></li>
+{% endblock %}
