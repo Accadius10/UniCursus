@@ -5,6 +5,7 @@ urlpatterns = [
     # URLs User Interface
     path('', views.accueil, name='accueil'),
     path('cursusEtut', views.cursus, name='cursus'),
+    path('cursusEtut/export_pdf/<int:matricule>/', views.export_pdf, name='export_pdf'),
     
     # URLs University Interface
     path('login', views.login, name='login'),

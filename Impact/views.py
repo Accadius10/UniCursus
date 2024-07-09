@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
 from .models import *
 from .forms import *
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 def accueil(request):
     return render(request, 'siteweb/index.html')
@@ -20,6 +22,44 @@ def cursus(request):
         'student_years': student_years,
     }
     return render(request, 'siteweb/cursus.html', context)
+
+def export_pdf(request, matricule):
+    student = get_object_or_404(Student, matricule=matricule)
+    student_years = StudentYear.objects.filter(student=student).select_related('filiere', 'filiere__faculty', 'filiere__faculty__university')
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="cursus_{student.matricule}.pdf"'
+
+    p = canvas.Canvas(response, pagesize=letter)
+    p.setFont("Helvetica", 12)
+
+    # Title
+    p.drawString(100, 750, f"Cursus de {student.name}")
+
+    # Table headers
+    y = 700
+    p.drawString(50, y, "Université")
+    p.drawString(150, y, "Faculté")
+    p.drawString(250, y, "Filière")
+    p.drawString(350, y, "Année d'étude")
+    p.drawString(450, y, "Année académique")
+    p.drawString(550, y, "Décision")
+
+    # Table rows
+    y -= 20
+    for year in student_years:
+        p.drawString(50, y, year.filiere.faculty.university.name)
+        p.drawString(150, y, year.filiere.faculty.name)
+        p.drawString(250, y, year.filiere.name)
+        p.drawString(350, y, str(year.year))
+        p.drawString(450, y, year.academic_year)
+        decision = "Admis" if year.admitted else "Enjamber" if year.enjambed else "En attente" if year.current else "Redoubler"
+        p.drawString(550, y, decision)
+        y -= 20
+
+    p.showPage()
+    p.save()
+    return response
 
 # Université
 def login(request):

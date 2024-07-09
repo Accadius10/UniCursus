@@ -104,7 +104,12 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="text-center m-5">
+        <a href="{% url 'export_pdf' student.matricule %}" class="btn btn-primary">Exporter en PDF</a>
+    </div>
 </div>
+
+
 
 <script>
     function submitMatriculeForm() {
