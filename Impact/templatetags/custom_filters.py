@@ -16,3 +16,8 @@ def add_one(value):
 @register.filter
 def equal(value, arg):
     return value == arg
+
+@register.filter
+def nequal(value, arg):
+    return value != arg
+

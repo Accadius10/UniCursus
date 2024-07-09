@@ -65,13 +65,14 @@ class Student(models.Model):
 class Grade(models.Model):
     ue = models.ForeignKey(UE, on_delete=models.CASCADE, related_name='grades')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='grades')
-    score = models.DecimalField(max_digits=6, decimal_places=2, null=False)
+    score = models.DecimalField(max_digits=6, decimal_places=2)
 
 class StudentYear(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='student_years')
     filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name='student_years_filieres')
     year = models.IntegerField()
     current = models.BooleanField(default=True)
+    compo = models.BooleanField(default=False)
     academic_year = models.CharField(max_length=20, default='2019-2020')
     admitted = models.BooleanField(default=False)
-
+    enjambed = models.BooleanField(default=False)

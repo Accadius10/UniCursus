@@ -2,27 +2,23 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse
+from django.db.models import Q
 from .models import *
 from .forms import *
 
-
 def accueil(request):
     return render(request, 'siteweb/index.html')
-
 
 def cursus(request):
     return render(request, 'siteweb/cursus.html')
 
 # Université
-
-
 def login(request):
     if 'university_id' in request.session:
         return redirect('dashboard')
 
     form = LoginForm()
     return render(request, 'siteweb/Login.html', {'form': form})
-
 
 def university_login(request):
     if 'university_id' in request.session:
@@ -52,13 +48,11 @@ def university_login(request):
 
     return render(request, 'siteweb/Login.html', {'form': form})
 
-
 def logout(request):
     if 'university_id' in request.session:
         del request.session['university_id']
 
     return redirect('login')
-
 
 def dashboard(request):
     if 'university_id' not in request.session:
@@ -68,7 +62,6 @@ def dashboard(request):
     university_id = request.session['university_id']
     university = University.objects.get(id=university_id)
     return render(request, 'siteweb/Universite/dashboard.html', {'university': university})
-
 
 def facultes(request):
     if 'university_id' not in request.session:
@@ -95,7 +88,6 @@ def facultes(request):
     }
 
     return render(request, 'siteweb/Universite/facultes.html', context)
-
 
 def createFaculte(request):
     if 'university_id' not in request.session:
@@ -139,7 +131,6 @@ def createFaculte(request):
         form = CreateFacultyForm()
 
     return redirect('facultes')
-
 
 def create_secteurs_filieres(request):
     if 'university_id' not in request.session:
@@ -189,7 +180,6 @@ def create_secteurs_filieres(request):
     }
     return render(request, 'siteweb/Universite/create_secteurs_filieres.html', context)
 
-
 def addfiliere(request, fac_id):
     if 'university_id' not in request.session:
         return redirect('login')
@@ -224,7 +214,6 @@ def addfiliere(request, fac_id):
     # Redirection après l'enregistrement des données
     return redirect('facultes')
 
-
 def filiere(request, fil_id):
     if 'university_id' not in request.session:
         return redirect('login')
@@ -233,22 +222,10 @@ def filiere(request, fil_id):
     university = University.objects.get(id=university_id)
 
     filiere = Filiere.objects.get(id=fil_id)
-
-    # Récupérer tous les étudiants de la filière et les classer par année
-    students_by_year = {}
-    students = filiere.student_years_filieres.filter(current=True).order_by('year')
-
-    for student in students:
-        year = student.year
-
-        if year not in students_by_year:
-            students_by_year[year] = []
-
-        students_by_year[year].append(student.student)
-        
+    
     # Récupérer tous les ues de la filière et les classer par année
     ues_by_year = {}
-    ues = UE.objects.filter(filiere=filiere).order_by('year')    
+    ues = UE.objects.filter(filiere=filiere, delete=False).order_by('year') 
 
     for ue in ues:
         year = ue.year
@@ -257,6 +234,28 @@ def filiere(request, fil_id):
             ues_by_year[year] = []
 
         ues_by_year[year].append(ue)
+
+    # Récupérer tous les étudiants de la filière et les classer par année
+    students_by_year = {}
+    students = filiere.student_years_filieres.filter(Q(current=True) | Q(enjambed=True)).order_by('year')
+
+    for student in students:
+        year = student.year
+
+        if year not in students_by_year:
+            students_by_year[year] = []
+
+        if not student.compo:
+            student.statut = "En attente"
+        elif student.admitted and student.enjambed:
+            student.statut = "Enjambé"
+        elif student.admitted and not student.enjambed:
+            student.statut = "Admis"
+        elif not student.admitted:
+            student.statut = "Redouble"
+        
+        students_by_year[year].append(student)
+
 
     context = {
         'university': university,
@@ -296,7 +295,6 @@ def filiere(request, fil_id):
 
     return render(request, 'siteweb/Universite/filiere.html', context)
 
-
 def edit_filiere(request, id):
     if 'university_id' not in request.session:
         return redirect('login')
@@ -314,7 +312,6 @@ def edit_filiere(request, id):
         messages.error(request, 'Filière non mise à jour.')
         
     return redirect('facultes')
-
 
 def delete_filiere(request, id):
     if 'university_id' not in request.session:
@@ -434,17 +431,31 @@ def inscription(request):
                 matricule=matricule,
                 defaults={'name': name, 'email': email, 'telephone': telephone}
             )
-            student.filieres.add(filiere)
             
-            StudentYear.objects.create(
-                student=student,
-                filiere=filiere,
-                year=current_year,
-                academic_year=academic_year,
-                current=True
-            )
-            
-            messages.success(request, 'Étudiant inscrit avec succès.')
+            # Check if the student is already enrolled in the selected filiere
+            if not student.filieres.filter(id=filiere_id).exists():
+                student.filieres.add(filiere)
+
+                StudentYear.objects.create(
+                    student=student,
+                    filiere=filiere,
+                    year=current_year,
+                    academic_year=academic_year,
+                )
+                    
+                messages.success(request, f'Étudiant {student.matricule} inscrit avec succès.')
+            elif not StudentYear.objects.filter(student=student, filiere=filiere, year=current_year).exists():
+                StudentYear.objects.create(
+                    student=student,
+                    filiere=filiere,
+                    year=current_year,
+                    academic_year=academic_year,
+                )
+                
+                messages.success(request, f'Étudiant {student.matricule} inscrit avec succès.')
+            else:
+                messages.warning(request, 'Cet étudiant est déjà inscrit dans cette filière.')
+
             return redirect('inscription')
         except Exception as e:
             messages.error(request, f'Erreur lors de l\'inscription: {e}')
@@ -456,7 +467,58 @@ def inscription(request):
 
     return render(request, 'siteweb/Universite/inscription.html', context)
 
+def inscription_fil(request, fil_id):
+    if 'university_id' not in request.session:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        name = request.POST.get('ins_name')
+        matricule = request.POST.get('ins_matricule')
+        email = request.POST.get('ins_email')
+        telephone = request.POST.get('ins_telephone')
+        current_year = request.POST.get('ins_current_year')
+        academic_year = request.POST.get('ins_academic_year')
+        
+        try:
+            filiere = Filiere.objects.get(id=fil_id)
+            student, created = Student.objects.get_or_create(
+                matricule=matricule,
+                defaults={'name': name, 'email': email, 'telephone': telephone}
+            )
+            
+            # Check if the student is already enrolled in the selected filiere
+            if not student.filieres.filter(id=fil_id).exists():
+                student.filieres.add(filiere)
+
+                StudentYear.objects.create(
+                    student=student,
+                    filiere=filiere,
+                    year=current_year,
+                    academic_year=academic_year,
+                )
+                    
+                messages.success(request, f'Étudiant {student.matricule} inscrit avec succès.')
+            elif not StudentYear.objects.filter(student=student, filiere=filiere, year=current_year).exists():
+                StudentYear.objects.create(
+                    student=student,
+                    filiere=filiere,
+                    year=current_year,
+                    academic_year=academic_year,
+                )
+                
+                messages.success(request, f'Étudiant {student.matricule} inscrit avec succès.')
+            else:
+                messages.warning(request, 'Cet étudiant est déjà inscrit dans cette filière.')
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'inscription: {e}')
+
+        return redirect('filiere', fil_id=fil_id)
+
 def get_filieres(request, faculty_id):
+    if 'university_id' not in request.session:
+        return redirect('login')
+    
     faculty = Faculty.objects.get(id=faculty_id)
     filieres = Filiere.objects.filter(faculty=faculty, delete=False)
     filieres_data = [{'id': filiere.id, 'name': filiere.name} for filiere in filieres]
@@ -464,6 +526,9 @@ def get_filieres(request, faculty_id):
     return JsonResponse({'filieres': filieres_data})
 
 def get_years_fil(request, fil_id):
+    if 'university_id' not in request.session:
+        return redirect('login')
+    
     filiere = Filiere.objects.get(id=fil_id)
     ues = UE.objects.filter(filiere=filiere).order_by('year')
     
@@ -477,3 +542,107 @@ def get_years_fil(request, fil_id):
             year_fil.append({'value': ue.year, 'text': y_l[ue.year - 1]})
             
     return JsonResponse({'year_fil': year_fil})
+
+def get_std_info(request, matricule):
+    if 'university_id' not in request.session:
+        return redirect('login')
+    
+    try:
+        student = Student.objects.get(matricule=matricule)
+        
+        if student:
+            return JsonResponse({'name': student.name, 'email': student.email, 'telephone': student.telephone})
+        else:
+            return JsonResponse({'name': "", 'email': "", 'telephone': ""})
+    except Student.DoesNotExist:
+        return JsonResponse({'name': "", 'email': "", 'telephone': ""})
+
+def enter_grades(request, student_id, filiere_id, year):
+    if 'university_id' not in request.session:
+        return redirect('login')
+    
+    university_id = request.session['university_id']
+    university = University.objects.get(id=university_id)
+    
+    student = Student.objects.get(id=student_id)
+    filiere = Filiere.objects.get(id=filiere_id)
+    ues = UE.objects.filter(filiere=filiere, year=year, delete=False).order_by('semester')
+    
+    ue_data = []
+    for ue in ues:
+        ue_info = {'ue': ue}
+        if ue.grades.filter(student=student).exists():
+            grade = ue.grades.get(student=student)
+            ue_info['note'] = grade.score
+            ue_info['valid'] = grade.score >= 60
+        ue_data.append(ue_info)
+
+    if request.method == 'POST':
+        credit_total = 0
+        credit_valid = 0
+        
+        st_y = StudentYear.objects.get(student=student, filiere=filiere, year=year, current=True)
+        st_y.compo = True
+        
+        for ue_info in ue_data:
+            ue = ue_info['ue']
+            credit_total += ue.credit
+            score = request.POST.get(f'score_{ue.id}')
+            if score:
+                Grade.objects.update_or_create(
+                    student=student,
+                    ue=ue,
+                    defaults={'score': score}
+                )
+            
+            if ue.grades.get(student=student).score >= 60:
+                credit_valid += ue.credit
+        
+        if credit_total == credit_valid:
+            st_y.admitted = True
+            st_y.enjambed = False
+        elif credit_valid >= credit_total * 0.8:
+            st_y.enjambed = True
+            st_y.admitted = True
+        
+        st_y.save()
+                
+        return redirect('filiere', fil_id=filiere_id)
+
+    context = {
+        'university': university,
+        'student': student,
+        'filiere': filiere,
+        'faculty': filiere.faculty,
+        'year': year,
+        'ues': ue_data,
+    }
+    
+    return render(request, 'siteweb/Universite/enter_grades.html', context)
+
+def reinscribe_student(request, student_id, filiere_id, year):
+    if 'university_id' not in request.session:
+        return redirect('login')
+    
+    university_id = request.session['university_id']
+    university = University.objects.get(id=university_id)
+    
+    student = Student.objects.get(id=student_id)
+    filiere = Filiere.objects.get(id=filiere_id)
+    
+    student_year_c = StudentYear.objects.get(filiere=filiere, student=student, year=year, current=True)
+    
+    student_year_c.current = False
+    student_year_c.save()
+    
+    next_start_year = int(student_year_c.academic_year.split('-')[1])
+    next_academic_year = f"{next_start_year}-{next_start_year + 1}"
+    
+    if not student_year_c.admitted:
+        student_year = StudentYear(filiere=filiere, year=year, student=student, academic_year=next_academic_year)
+        student_year.save()
+    elif UE.objects.filter(filiere=filiere, year=year + 1).exists():
+        student_year = StudentYear(filiere=filiere, year=year+1, student=student, academic_year=next_academic_year)
+        student_year.save()
+    
+    return redirect('filiere', fil_id=filiere_id)

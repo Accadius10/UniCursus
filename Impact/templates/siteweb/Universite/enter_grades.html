@@ -1,0 +1,90 @@
+{% extends 'siteweb/Universite/baseU.html' %}
+
+{% block title %}{{ filiere.sigle }} {{ year }} - {{ faculty.sigle }} - UniCursus{% endblock %}
+
+{% block page %}
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="hero">
+    <div class="container position-relative">
+        <div class="row gy-5" data-aos="fade-in">
+            <div
+                class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+                <h4>{{university.name}}</h4>
+                <h3 class="text-white">{{ filiere.name }} - {{ faculty.sigle }}</h3>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Hero Section -->
+
+<!-- Section des notes -->
+<section id="notes" class="container">
+    <div class="accordion" id="accordionNotes">
+        <div class="row">
+            <!-- Section de l'étudiant -->
+            <section id="student" class="col-md-4">
+                <div class="card" style="background-color: gray; border: black; border-radius: 10%;">
+                    <div class="card-body">
+                        <h4 class="mb-3 text-center"><b>{{ student.matricule }}</b></h4>
+                        <h5 class="text-white mb-5">{{ student.name }}</h5>
+                        <h6 class="mb-5 text-center">{{ student.email }}</h6>
+                        <h6 class="mb-3 text-center"><b>Tel : </b>{{ student.telephone }}</h6>
+                        <div class="m-5">
+                            <h3 class="text-center text-white">
+                                <b>{{ faculty.sigle }} - {{ filiere.sigle }} {{ year }}</b>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section des notes pour ue -->
+            <section id="grades" class="col-md-8 p-5">
+                <table class="table table-striped">
+                    <form method="post">
+                        {% csrf_token %}
+                        <thead>
+                            <tr>
+                                <th class="col-5 text-center">Unité d'Enseignement</th>
+                                <th class="col-1 text-center">Crédit</th>
+                                <th class="col-1 text-center">Semestre</th>
+                                <th class="col-4 text-center">Note / 100</th>
+                                <th class="col-1 text-center">Appréciation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ue in ues %}
+                            <tr>
+                                <td class="text-center">{{ ue.ue.name }}</td>
+                                <td class="text-center">{{ ue.ue.credit }}</td>
+                                <td class="text-center">{{ ue.ue.semester }}</td>
+                                <td class="text-center">
+                                    {% if ue.valid %}
+                                    <b>{{ ue.note }}</b>
+                                    {% else %}
+                                    <input type="number" step="0.01" class="form-control" id="score_{{ ue.ue.id }}"
+                                        name="score_{{ ue.ue.id }}" value="{% if ue.note %}{{ ue.note }}{% endif %}">
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if ue.valid %}
+                                    Validé
+                                    {% else %}
+                                    Non Validé
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <div class="text-end mb-5">
+                                    <button type="submit" class="btn btn-primary">Envoyer les notes</button>
+                                </div>
+                            </tr>
+                        </tbody>
+                    </form>
+                </table>
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}

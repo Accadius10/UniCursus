@@ -19,6 +19,10 @@
                     data-bs-target="#addYearModal">
                     Ajouter une nouvelle année
                 </button>
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
+                    data-bs-target="#inscriptionModal">
+                    Inscrire un étudiant en {{ filiere.sigle }}
+                </button>
             </div>
         </div>
     </div>
@@ -61,16 +65,44 @@
                 data-bs-parent="#accordionStudents">
                 <div class="card-body p-5">
                     {% if students_by_year|get_dic:year %}
-                    {% for student in students_by_year|get_dic:year %}
-                    <div class="row text-center">
-                        <div class="col-3">{{student.matricule}}</div>
-                        <div class="col-6">{{student.name}}</div>
-                        <div class="col-6">{{student.name}}</div>
-                    </div>
-                    {% endfor %}
+                    <table class="table table-striped mb-5">
+                        <thead>
+                            <tr>
+                                <th class="col-2 text-center">Matricule</th>
+                                <th class="col-4 text-center">Nom & Prénoms</th>
+                                <th class="col-2 text-center">Email</th>
+                                <th class="col-2 text-center">Téléphone</th>
+                                <th class="col-1 text-center">Statut</th>
+                                <th class="col-1 text-center">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students_by_year|get_dic:year %}
+                            <tr>
+                                <td class="col-2 text-center">
+                                    {% if student.statut|nequal:"En attente" %}
+                                    <a href="{% url 'reinscribe_student' student.student.id filiere.id year %}">
+                                        {{ student.student.matricule }}
+                                    </a>
+                                    {% else %}
+                                    {{ student.student.matricule }}
+                                    {% endif %}
+                                </td>
+                                <td class="col-4 text-center">{{ student.student.name }}</td>
+                                <td class="col-2 text-center">{{ student.student.email }}</td>
+                                <td class="col-2 text-center">{{ student.student.telephone }}</td>
+                                <td class="col-1 text-center">{{ student.statut }}</td>
+                                <td class="col-1 text-center">
+                                    <a href="{% url 'enter_grades' student.student.id filiere.id year %}"
+                                        class="btn btn-primary btn-sm">Notes</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                     {% else %}
                     <h3 class="m-3 text-center text-success">
-                        Aucun étudiant inscrit dans cette année
+                        Aucun étudiant inscrit dans cette année actuellement
                     </h3>
                     {% endif %}
                 </div>
@@ -120,6 +152,54 @@
                     </div>
                     <div id="ues_inputs_sem2" class="mb-5">
                         <!-- Inputs pour les UEs du semestre 2 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Formulaire pour inscrire un étudiant dans la filière -->
+<div class="modal fade" id="inscriptionModal" tabindex="-1" aria-labelledby="inscriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <form action="{% url 'inscription_fil' filiere.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inscriptionModalLabel">Inscrivez un étudiant en {{ filiere.sigle }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-5">
+                        <label for="ins_matricule" class="form-label"><b>Matricule</b></label>
+                        <input type="number" class="form-control" id="ins_matricule" name="ins_matricule" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="ins_name" class="form-label"><b>Nom</b></label>
+                        <input type="text" class="form-control" id="ins_name" name="ins_name" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="ins_email" class="form-label"><b>Email</b></label>
+                        <input type="email" class="form-control" id="ins_email" name="ins_email" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="ins_telephone" class="form-label"><b>Numéro de téléphone</b></label>
+                        <input type="tel" class="form-control" id="ins_telephone" name="ins_telephone" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="ins_current_year" class="form-label"><b>Année d'étude</b></label>
+                        <select class="form-select" id="ins_current_year" name="ins_current_year" required>
+                            <option value="">Sélectionnez l'année d'étude</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="ins_academic_year" class="form-label"><b>Année académique</b></label>
+                        <input type="text" class="form-control" id="ins_academic_year" name="ins_academic_year"
+                            required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -207,6 +287,43 @@
             const html = generateUEInputs(numUe, 2);
             uesInputsContainer2.innerHTML = html;
         });
+
+        const yearSelect = document.getElementById('ins_current_year');
+
+        // Clear previous options
+        yearSelect.innerHTML = '<option value="">Sélectionnez l\'année d\'étude</option>';
+
+        // Fetch filieres for the selected faculty
+        fetch(`/get_years/{{filiere.id}}/`)
+            .then(response => response.json())
+            .then(data => {
+                data.year_fil.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year.value;
+                    option.textContent = year.text;
+                    yearSelect.appendChild(option);
+                });
+            });
+    });
+
+    document.getElementById('ins_matricule').addEventListener('input', function () {
+        const matricule = this.value;
+        const nameInput = document.getElementById('ins_name');
+        const emailInput = document.getElementById('ins_email');
+        const telephoneInput = document.getElementById('ins_telephone');
+
+        nameInput.value = "";
+        emailInput.value = "";
+        telephoneInput.value = "";
+
+        // Fetch filieres for the selected faculty
+        fetch(`/get_std_info/${matricule}/`)
+            .then(response => response.json())
+            .then(data => {
+                nameInput.value = data.name;
+                emailInput.value = data.email;
+                telephoneInput.value = data.telephone;
+            });
     });
 </script>
 

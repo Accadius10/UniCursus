@@ -32,12 +32,12 @@
                 {% csrf_token %}
                 <div class="card-body p-5 bg-dark text-white fs-5">
                     <div class="mb-5">
-                        <label for="name" class="form-label"><b>Nom</b></label>
-                        <input type="text" class="form-control" id="name" name="name" required>
-                    </div>
-                    <div class="mb-5">
                         <label for="matricule" class="form-label"><b>Matricule</b></label>
                         <input type="number" class="form-control" id="matricule" name="matricule" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="name" class="form-label"><b>Nom</b></label>
+                        <input type="text" class="form-control" id="name" name="name" required>
                     </div>
                     <div class="mb-5">
                         <label for="email" class="form-label"><b>Email</b></label>
@@ -112,6 +112,26 @@
         var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
         errorModal.show();
         {% endif %}
+    });
+
+    document.getElementById('matricule').addEventListener('input', function () {
+        const matricule = this.value;
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const telephoneInput = document.getElementById('telephone');
+
+        nameInput.value = "";
+        emailInput.value = "";
+        telephoneInput.value = "";
+
+        // Fetch filieres for the selected faculty
+        fetch(`/get_std_info/${matricule}/`)
+            .then(response => response.json())
+            .then(data => {
+                nameInput.value = data.name;
+                emailInput.value = data.email;
+                telephoneInput.value = data.telephone;
+            });
     });
 
     document.getElementById('faculty').addEventListener('change', function () {
