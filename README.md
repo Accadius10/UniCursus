@@ -75,6 +75,7 @@ Pour accéder à l'interface d'administration de Django, rendez-vous à l'URL su
 ```
 http://127.0.0.1:8000/admin/
 ```
+### Créez une université 
 
 ## Débogage
 
